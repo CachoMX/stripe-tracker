@@ -1,31 +1,8 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/server';
+import { clerkMiddleware } from '@clerk/nextjs/server';
 
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/ty(.*)', // Thank you pages are public
-  '/api/webhooks(.*)',
-]);
-
-export default clerkMiddleware(async (auth, request) => {
-  const { userId } = await auth();
-
-  // Allow public routes
-  if (isPublicRoute(request)) {
-    return NextResponse.next();
-  }
-
-  // Redirect to sign-in if not authenticated
-  if (!userId) {
-    const signInUrl = new URL('/sign-in', request.url);
-    signInUrl.searchParams.set('redirect_url', request.url);
-    return NextResponse.redirect(signInUrl);
-  }
-
-  return NextResponse.next();
-});
+// Use Clerk's default middleware without customization
+// This avoids Edge Runtime compatibility issues
+export default clerkMiddleware();
 
 export const config = {
   matcher: [
@@ -35,6 +12,3 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 };
-
-// Force Node.js runtime for Clerk compatibility
-export const runtime = 'nodejs';
