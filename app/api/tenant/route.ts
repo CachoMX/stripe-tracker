@@ -1,19 +1,20 @@
-import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@/lib/supabase/server-client';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const { userId } = await auth();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { data: tenant, error } = await supabaseAdmin
       .from('tenants')
       .select('*')
-      .eq('clerk_user_id', userId)
+      .eq('clerk_user_id', user.id)
       .single();
 
     if (error && error.code !== 'PGRST116') {
@@ -31,9 +32,10 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const { userId } = await auth();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -42,7 +44,7 @@ export async function PUT(request: Request) {
     const { data: tenant, error } = await supabaseAdmin
       .from('tenants')
       .update(body)
-      .eq('clerk_user_id', userId)
+      .eq('clerk_user_id', user.id)
       .select()
       .single();
 

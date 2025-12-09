@@ -1,17 +1,16 @@
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { getUser } from '@/lib/supabase/server-client';
 import { supabaseAdmin } from '@/lib/supabase/server';
 
 export default async function DashboardPage() {
-  const { userId } = await auth();
-  const user = await currentUser();
+  const user = await getUser();
 
-  if (!userId) return null;
+  if (!user) return null;
 
   // Get or create tenant
   let { data: tenant } = await supabaseAdmin
     .from('tenants')
     .select('*')
-    .eq('clerk_user_id', userId)
+    .eq('clerk_user_id', user.id)
     .single();
 
   // Create tenant if doesn't exist
@@ -19,8 +18,8 @@ export default async function DashboardPage() {
     const { data: newTenant } = await supabaseAdmin
       .from('tenants')
       .insert({
-        clerk_user_id: userId,
-        email: user?.primaryEmailAddress?.emailAddress || '',
+        clerk_user_id: user.id,
+        email: user.email || '',
       })
       .select()
       .single();
@@ -46,7 +45,7 @@ export default async function DashboardPage() {
     <div>
       <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
       <p className="text-gray-600 mb-8">
-        Welcome back, {user?.firstName || 'there'}!
+        Welcome back!
       </p>
 
       {!isConfigured && (

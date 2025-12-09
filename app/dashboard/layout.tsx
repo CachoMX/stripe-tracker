@@ -1,17 +1,17 @@
-import { auth } from '@clerk/nextjs/server';
+import { getUser } from '@/lib/supabase/server-client';
 import { redirect } from 'next/navigation';
-import { UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
+import LogoutButton from '@/components/LogoutButton';
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { userId } = await auth();
+  const user = await getUser();
 
-  if (!userId) {
-    redirect('/sign-in');
+  if (!user) {
+    redirect('/login');
   }
 
   return (
@@ -20,6 +20,7 @@ export default async function DashboardLayout({
       <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 p-6">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-purple-700">Payment Tracker</h1>
+          <p className="text-sm text-gray-500 mt-1">{user.email}</p>
         </div>
 
         <nav className="space-y-2">
@@ -62,7 +63,7 @@ export default async function DashboardLayout({
         </nav>
 
         <div className="absolute bottom-6 left-6">
-          <UserButton afterSignOutUrl="/" />
+          <LogoutButton />
         </div>
       </aside>
 

@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { auth } from '@clerk/nextjs/server';
+import { getUser } from '@/lib/supabase/server-client';
 import { redirect } from 'next/navigation';
 
 export default async function Home() {
-  const { userId } = await auth();
+  const user = await getUser();
 
   // Redirect to dashboard if already logged in
-  if (userId) {
+  if (user) {
     redirect('/dashboard');
   }
 
@@ -18,13 +18,13 @@ export default async function Home() {
           <h1 className="text-3xl font-bold text-white">Payment Tracker</h1>
           <div className="space-x-4">
             <Link
-              href="/sign-in"
+              href="/login"
               className="text-white hover:text-purple-200 transition"
             >
               Sign In
             </Link>
             <Link
-              href="/sign-up"
+              href="/signup"
               className="bg-white text-purple-700 px-6 py-2 rounded-lg font-semibold hover:bg-purple-50 transition"
             >
               Get Started
@@ -44,7 +44,7 @@ export default async function Home() {
 
           <div className="flex gap-4 justify-center mb-16">
             <Link
-              href="/sign-up"
+              href="/signup"
               className="bg-white text-purple-700 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-purple-50 transition shadow-lg"
             >
               Start Free Trial
