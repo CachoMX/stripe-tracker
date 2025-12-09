@@ -120,17 +120,35 @@ ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own tenant" ON tenants
   FOR SELECT USING (clerk_user_id = auth.uid()::TEXT);
 
+CREATE POLICY "Users can insert own tenant" ON tenants
+  FOR INSERT WITH CHECK (clerk_user_id = auth.uid()::TEXT);
+
 CREATE POLICY "Users can update own tenant" ON tenants
   FOR UPDATE USING (clerk_user_id = auth.uid()::TEXT);
 
 CREATE POLICY "Users can view own payment links" ON payment_links
   FOR SELECT USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
 
-CREATE POLICY "Users can manage own payment links" ON payment_links
-  FOR ALL USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
+CREATE POLICY "Users can insert own payment links" ON payment_links
+  FOR INSERT WITH CHECK (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
+
+CREATE POLICY "Users can update own payment links" ON payment_links
+  FOR UPDATE USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
+
+CREATE POLICY "Users can delete own payment links" ON payment_links
+  FOR DELETE USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
 
 CREATE POLICY "Users can view own sessions" ON checkout_sessions
   FOR SELECT USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
 
+CREATE POLICY "Users can insert own sessions" ON checkout_sessions
+  FOR INSERT WITH CHECK (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
+
+CREATE POLICY "Users can update own sessions" ON checkout_sessions
+  FOR UPDATE USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
+
 CREATE POLICY "Users can view own transactions" ON transactions
   FOR SELECT USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
+
+CREATE POLICY "Users can insert transactions" ON transactions
+  FOR INSERT WITH CHECK (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));

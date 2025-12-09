@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get tenant ID
-    const { data: tenant } = await supabase
+    const { data: tenant } = await supabaseAdmin
       .from('tenants')
       .select('id')
       .eq('clerk_user_id', user.id)
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get checkout sessions
-    const { data: checkoutSessions, error } = await supabase
+    const { data: checkoutSessions, error } = await supabaseAdmin
       .from('checkout_sessions')
       .select('*')
       .eq('tenant_id', tenant.id)
@@ -57,14 +58,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Get or create tenant
-    let { data: tenant } = await supabase
+    let { data: tenant } = await supabaseAdmin
       .from('tenants')
       .select('id')
       .eq('clerk_user_id', user.id)
       .single();
 
     if (!tenant) {
-      const { data: newTenant, error: tenantError } = await supabase
+      const { data: newTenant, error: tenantError } = await supabaseAdmin
         .from('tenants')
         .insert({
           clerk_user_id: user.id,
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create checkout session config
-    const { data: checkoutSession, error } = await supabase
+    const { data: checkoutSession, error } = await supabaseAdmin
       .from('checkout_sessions')
       .insert({
         tenant_id: tenant.id,

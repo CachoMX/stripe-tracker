@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get tenant with domain info
-    const { data: tenant, error } = await supabase
+    const { data: tenant, error } = await supabaseAdmin
       .from('tenants')
       .select('custom_domain, domain_verified')
       .eq('clerk_user_id', user.id)
@@ -49,14 +50,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Get or create tenant
-    let { data: tenant } = await supabase
+    let { data: tenant } = await supabaseAdmin
       .from('tenants')
       .select('id')
       .eq('clerk_user_id', user.id)
       .single();
 
     if (!tenant) {
-      const { data: newTenant, error: tenantError } = await supabase
+      const { data: newTenant, error: tenantError } = await supabaseAdmin
         .from('tenants')
         .insert({
           clerk_user_id: user.id,
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update tenant domain
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('tenants')
       .update({
         custom_domain,
@@ -99,7 +100,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Get tenant
-    const { data: tenant } = await supabase
+    const { data: tenant } = await supabaseAdmin
       .from('tenants')
       .select('id, custom_domain')
       .eq('clerk_user_id', user.id)
@@ -111,7 +112,7 @@ export async function PUT(request: NextRequest) {
 
     // TODO: In production, verify DNS records here
     // For now, we'll just mark it as verified
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('tenants')
       .update({
         domain_verified: true,
