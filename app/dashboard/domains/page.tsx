@@ -170,14 +170,27 @@ export default function DomainsPage() {
             )}
 
             {domainStatus === 'verified' && (
-              <div className="mt-8 p-6 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="text-3xl">✅</div>
-                  <div>
-                    <h3 className="font-semibold text-green-900">Domain Verified</h3>
-                    <p className="text-sm text-green-800 mt-1">
-                      Your custom domain {customDomain} is active and ready to use
-                    </p>
+              <div className="mt-8">
+                <div className="p-6 bg-green-50 border border-green-200 rounded-lg mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl">✅</div>
+                      <div>
+                        <h3 className="font-semibold text-green-900">Domain Verified</h3>
+                        <p className="text-sm text-green-800 mt-1">
+                          Your custom domain {customDomain} is active and ready to use
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsEditing(true);
+                        setDomainStatus('pending');
+                      }}
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium"
+                    >
+                      Edit Domain
+                    </button>
                   </div>
                 </div>
               </div>

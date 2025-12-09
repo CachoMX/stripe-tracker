@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { addDomainToVercel, verifyDomainInVercel } from '@/lib/vercel/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -49,10 +50,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Add domain to Vercel
+    try {
+      await addDomainToVercel(custom_domain);
+    } catch (vercelError: any) {
+      console.error('Vercel domain addition error:', vercelError);
+      // Continue even if Vercel fails - user can add manually
+    }
+
     // Get or create tenant
     let { data: tenant } = await supabaseAdmin
       .from('tenants')
-      .select('id')
+      .select('id, custom_domain')
       .eq('clerk_user_id', user.id)
       .single();
 
@@ -110,18 +119,27 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'No domain configured' }, { status: 400 });
     }
 
-    // TODO: In production, verify DNS records here
-    // For now, we'll just mark it as verified
+    // Verify domain in Vercel
+    let vercelVerified = false;
+    try {
+      const vercelResponse = await verifyDomainInVercel(tenant.custom_domain);
+      vercelVerified = vercelResponse.verified;
+    } catch (vercelError: any) {
+      console.error('Vercel verification error:', vercelError);
+      // If Vercel verification fails, we still allow manual verification
+    }
+
+    // Update tenant domain verification status
     const { error: updateError } = await supabaseAdmin
       .from('tenants')
       .update({
-        domain_verified: true,
+        domain_verified: vercelVerified,
       })
       .eq('id', tenant.id);
 
     if (updateError) throw updateError;
 
-    return NextResponse.json({ success: true, domainVerified: true });
+    return NextResponse.json({ success: true, domainVerified: vercelVerified });
   } catch (error: any) {
     console.error('Error verifying domain:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
