@@ -1,15 +1,6 @@
 import Link from 'next/link';
-import { getUser } from '@/lib/supabase/server-client';
-import { redirect } from 'next/navigation';
 
-export default async function Home() {
-  const user = await getUser();
-
-  // Redirect to dashboard if already logged in
-  if (user) {
-    redirect('/dashboard');
-  }
-
+export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800">
       <div className="container mx-auto px-4 py-16">
