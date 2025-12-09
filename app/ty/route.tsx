@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { retrieveCheckoutSession } from '@/lib/stripe/client';
 
 export async function GET(request: NextRequest) {
