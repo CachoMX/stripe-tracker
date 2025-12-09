@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function CheckoutsPage() {
   const [sessions, setSessions] = useState([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     amount: '',
@@ -12,12 +13,43 @@ export default function CheckoutsPage() {
     product_name: '',
   });
 
+  useEffect(() => {
+    fetchCheckoutSessions();
+  }, []);
+
+  const fetchCheckoutSessions = async () => {
+    try {
+      const response = await fetch('/api/checkouts');
+      const data = await response.json();
+      if (data.checkoutSessions) {
+        setSessions(data.checkoutSessions);
+      }
+    } catch (error) {
+      console.error('Error fetching checkout sessions:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement API call to create checkout session
-    console.log('Creating checkout session:', formData);
-    setShowCreateForm(false);
-    setFormData({ name: '', amount: '', currency: 'usd', product_name: '' });
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/checkouts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        await fetchCheckoutSessions();
+        setShowCreateForm(false);
+        setFormData({ name: '', amount: '', currency: 'usd', product_name: '' });
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -107,9 +139,10 @@ export default function CheckoutsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+                  disabled={loading}
+                  className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
                 >
-                  Create
+                  {loading ? 'Creating...' : 'Create'}
                 </button>
               </div>
             </form>
@@ -134,7 +167,24 @@ export default function CheckoutsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Checkout sessions list will go here */}
+            {sessions.map((session: any) => (
+              <div key={session.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold text-lg">{session.name}</h3>
+                    <p className="text-sm text-gray-600">{session.product_name}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-lg">
+                      ${(session.amount / 100).toFixed(2)} {session.currency.toUpperCase()}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Created: {new Date(session.created_at).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
           </div>
         )}
       </div>

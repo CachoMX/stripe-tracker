@@ -1,23 +1,69 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function DomainsPage() {
   const [customDomain, setCustomDomain] = useState('');
   const [domainStatus, setDomainStatus] = useState<'none' | 'pending' | 'verified'>('none');
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchDomainInfo();
+  }, []);
+
+  const fetchDomainInfo = async () => {
+    try {
+      const response = await fetch('/api/domains');
+      const data = await response.json();
+      if (data.customDomain) {
+        setCustomDomain(data.customDomain);
+        setDomainStatus(data.domainVerified ? 'verified' : 'pending');
+      }
+    } catch (error) {
+      console.error('Error fetching domain info:', error);
+    }
+  };
 
   const handleSaveDomain = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement API call to save custom domain
-    console.log('Saving custom domain:', customDomain);
-    setDomainStatus('pending');
-    setIsEditing(false);
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/domains', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ custom_domain: customDomain }),
+      });
+
+      if (response.ok) {
+        setDomainStatus('pending');
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Error saving domain:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleVerifyDomain = async () => {
-    // TODO: Implement API call to verify domain
-    console.log('Verifying domain:', customDomain);
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/domains', {
+        method: 'PUT',
+      });
+
+      const data = await response.json();
+      if (data.domainVerified) {
+        setDomainStatus('verified');
+      }
+    } catch (error) {
+      console.error('Error verifying domain:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -70,9 +116,10 @@ export default function DomainsPage() {
                 <div className="flex gap-4">
                   <button
                     type="submit"
-                    className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
+                    disabled={loading}
+                    className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50"
                   >
-                    Save Domain
+                    {loading ? 'Saving...' : 'Save Domain'}
                   </button>
                   {domainStatus === 'none' && (
                     <button
@@ -114,9 +161,10 @@ export default function DomainsPage() {
                 </div>
                 <button
                   onClick={handleVerifyDomain}
-                  className="mt-4 bg-yellow-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition"
+                  disabled={loading}
+                  className="mt-4 bg-yellow-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition disabled:opacity-50"
                 >
-                  Verify Domain
+                  {loading ? 'Verifying...' : 'Verify Domain'}
                 </button>
               </div>
             )}

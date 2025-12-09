@@ -1,21 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function PaymentLinksPage() {
   const [links, setLinks] = useState([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     stripe_payment_link: '',
   });
 
+  useEffect(() => {
+    fetchPaymentLinks();
+  }, []);
+
+  const fetchPaymentLinks = async () => {
+    try {
+      const response = await fetch('/api/payment-links');
+      const data = await response.json();
+      if (data.paymentLinks) {
+        setLinks(data.paymentLinks);
+      }
+    } catch (error) {
+      console.error('Error fetching payment links:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement API call to save payment link
-    console.log('Creating payment link:', formData);
-    setShowCreateForm(false);
-    setFormData({ name: '', stripe_payment_link: '' });
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/payment-links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        await fetchPaymentLinks();
+        setShowCreateForm(false);
+        setFormData({ name: '', stripe_payment_link: '' });
+      }
+    } catch (error) {
+      console.error('Error creating payment link:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -76,9 +108,10 @@ export default function PaymentLinksPage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+                  disabled={loading}
+                  className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
                 >
-                  Create
+                  {loading ? 'Creating...' : 'Create'}
                 </button>
               </div>
             </form>
@@ -103,7 +136,22 @@ export default function PaymentLinksPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Payment links list will go here */}
+            {links.map((link: any) => (
+              <div key={link.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                <h3 className="font-semibold text-lg">{link.name}</h3>
+                <a
+                  href={link.stripe_payment_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-purple-600 hover:underline break-all"
+                >
+                  {link.stripe_payment_link}
+                </a>
+                <p className="text-xs text-gray-500 mt-2">
+                  Created: {new Date(link.created_at).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
           </div>
         )}
       </div>

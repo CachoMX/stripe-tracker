@@ -33,19 +33,9 @@ CREATE TABLE payment_links (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
 
-  -- Stripe Data
-  stripe_payment_link_id TEXT,
-  stripe_product_id TEXT,
-  stripe_price_id TEXT,
-
-  -- Product Info
-  product_name TEXT NOT NULL,
-  description TEXT,
-  amount INTEGER NOT NULL, -- in cents
-  currency TEXT DEFAULT 'usd',
-
-  -- URLs
-  checkout_url TEXT,
+  -- Link Info
+  name TEXT NOT NULL,
+  stripe_payment_link TEXT NOT NULL,
 
   -- Metadata
   active BOOLEAN DEFAULT TRUE,
@@ -58,23 +48,15 @@ CREATE TABLE checkout_sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
 
-  -- Stripe Data
-  stripe_session_id TEXT UNIQUE NOT NULL,
-  stripe_customer_id TEXT,
-
-  -- Customer Info
-  customer_email TEXT,
-  customer_name TEXT,
-
-  -- Payment Info
-  amount INTEGER NOT NULL,
+  -- Session Info
+  name TEXT NOT NULL,
+  product_name TEXT NOT NULL,
+  amount INTEGER NOT NULL, -- in cents
   currency TEXT DEFAULT 'usd',
-  status TEXT NOT NULL, -- 'pending', 'complete', 'expired'
 
   -- Metadata
-  metadata JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  completed_at TIMESTAMP WITH TIME ZONE
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Transactions table (for analytics)
