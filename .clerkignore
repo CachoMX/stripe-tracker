@@ -1,0 +1,3 @@
+# Ignore middleware - we handle auth at page level
+middleware.ts
+middleware.js
