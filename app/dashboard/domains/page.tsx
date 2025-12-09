@@ -7,6 +7,7 @@ export default function DomainsPage() {
   const [domainStatus, setDomainStatus] = useState<'none' | 'pending' | 'verified'>('none');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     fetchDomainInfo();
@@ -28,6 +29,7 @@ export default function DomainsPage() {
   const handleSaveDomain = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setMessage(null);
 
     try {
       const response = await fetch('/api/domains', {
@@ -36,12 +38,18 @@ export default function DomainsPage() {
         body: JSON.stringify({ custom_domain: customDomain }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
         setDomainStatus('pending');
         setIsEditing(false);
+        setMessage({ type: 'success', text: 'Domain saved! Configure DNS and click Verify.' });
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to save domain' });
       }
     } catch (error) {
       console.error('Error saving domain:', error);
+      setMessage({ type: 'error', text: 'An error occurred while saving domain' });
     } finally {
       setLoading(false);
     }
@@ -49,6 +57,7 @@ export default function DomainsPage() {
 
   const handleVerifyDomain = async () => {
     setLoading(true);
+    setMessage(null);
 
     try {
       const response = await fetch('/api/domains', {
@@ -56,11 +65,19 @@ export default function DomainsPage() {
       });
 
       const data = await response.json();
-      if (data.domainVerified) {
+
+      if (response.ok && data.domainVerified) {
         setDomainStatus('verified');
+        setMessage({ type: 'success', text: 'Domain verified successfully!' });
+      } else {
+        setMessage({
+          type: 'error',
+          text: 'Domain not verified yet. Make sure DNS is configured correctly.'
+        });
       }
     } catch (error) {
       console.error('Error verifying domain:', error);
+      setMessage({ type: 'error', text: 'Failed to verify domain. Please try again.' });
     } finally {
       setLoading(false);
     }
@@ -74,6 +91,18 @@ export default function DomainsPage() {
           Configure your custom domain for thank you pages
         </p>
       </div>
+
+      {message && (
+        <div
+          className={`mb-6 p-4 rounded-lg ${
+            message.type === 'success'
+              ? 'bg-green-50 text-green-800 border border-green-200'
+              : 'bg-red-50 text-red-800 border border-red-200'
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
         {domainStatus === 'none' && !isEditing ? (
