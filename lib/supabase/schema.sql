@@ -1,0 +1,154 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Tenants table
+CREATE TABLE tenants (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  clerk_user_id TEXT NOT NULL UNIQUE,
+  email TEXT NOT NULL,
+
+  -- Stripe Configuration (encrypted in production)
+  stripe_secret_key TEXT,
+  stripe_publishable_key TEXT,
+
+  -- Hyros Configuration
+  hyros_tracking_script TEXT,
+
+  -- Custom Domain
+  custom_domain TEXT UNIQUE,
+  domain_verified BOOLEAN DEFAULT FALSE,
+  domain_verification_token TEXT,
+
+  -- Subscription
+  subscription_status TEXT DEFAULT 'trial',
+  subscription_plan TEXT DEFAULT 'basic',
+
+  -- Metadata
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Payment Links table
+CREATE TABLE payment_links (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+
+  -- Stripe Data
+  stripe_payment_link_id TEXT,
+  stripe_product_id TEXT,
+  stripe_price_id TEXT,
+
+  -- Product Info
+  product_name TEXT NOT NULL,
+  description TEXT,
+  amount INTEGER NOT NULL, -- in cents
+  currency TEXT DEFAULT 'usd',
+
+  -- URLs
+  checkout_url TEXT,
+
+  -- Metadata
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Checkout Sessions table
+CREATE TABLE checkout_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+
+  -- Stripe Data
+  stripe_session_id TEXT UNIQUE NOT NULL,
+  stripe_customer_id TEXT,
+
+  -- Customer Info
+  customer_email TEXT,
+  customer_name TEXT,
+
+  -- Payment Info
+  amount INTEGER NOT NULL,
+  currency TEXT DEFAULT 'usd',
+  status TEXT NOT NULL, -- 'pending', 'complete', 'expired'
+
+  -- Metadata
+  metadata JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  completed_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Transactions table (for analytics)
+CREATE TABLE transactions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+
+  -- Stripe Data
+  stripe_session_id TEXT,
+  stripe_payment_intent_id TEXT,
+
+  -- Customer Info
+  customer_email TEXT NOT NULL,
+  customer_name TEXT,
+
+  -- Payment Info
+  amount INTEGER NOT NULL,
+  currency TEXT DEFAULT 'usd',
+  status TEXT NOT NULL,
+
+  -- Source
+  payment_link_id UUID REFERENCES payment_links(id),
+
+  -- Metadata
+  metadata JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes for performance
+CREATE INDEX idx_tenants_clerk_user_id ON tenants(clerk_user_id);
+CREATE INDEX idx_tenants_custom_domain ON tenants(custom_domain);
+CREATE INDEX idx_payment_links_tenant_id ON payment_links(tenant_id);
+CREATE INDEX idx_checkout_sessions_tenant_id ON checkout_sessions(tenant_id);
+CREATE INDEX idx_checkout_sessions_stripe_session_id ON checkout_sessions(stripe_session_id);
+CREATE INDEX idx_transactions_tenant_id ON transactions(tenant_id);
+CREATE INDEX idx_transactions_customer_email ON transactions(customer_email);
+
+-- Updated_at trigger function
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Apply trigger to tables
+CREATE TRIGGER update_tenants_updated_at BEFORE UPDATE ON tenants
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_payment_links_updated_at BEFORE UPDATE ON payment_links
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Row Level Security (RLS)
+ALTER TABLE tenants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payment_links ENABLE ROW LEVEL SECURITY;
+ALTER TABLE checkout_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies (basic - can be enhanced)
+CREATE POLICY "Users can view own tenant" ON tenants
+  FOR SELECT USING (clerk_user_id = auth.uid()::TEXT);
+
+CREATE POLICY "Users can update own tenant" ON tenants
+  FOR UPDATE USING (clerk_user_id = auth.uid()::TEXT);
+
+CREATE POLICY "Users can view own payment links" ON payment_links
+  FOR SELECT USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
+
+CREATE POLICY "Users can manage own payment links" ON payment_links
+  FOR ALL USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
+
+CREATE POLICY "Users can view own sessions" ON checkout_sessions
+  FOR SELECT USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
+
+CREATE POLICY "Users can view own transactions" ON transactions
+  FOR SELECT USING (tenant_id IN (SELECT id FROM tenants WHERE clerk_user_id = auth.uid()::TEXT));
