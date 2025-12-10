@@ -6,6 +6,7 @@ export default function PaymentLinksPage() {
   const [links, setLinks] = useState([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     stripe_payment_link: '',
@@ -47,6 +48,27 @@ export default function PaymentLinksPage() {
       console.error('Error creating payment link:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (linkId: string) => {
+    if (!confirm('Are you sure you want to delete this payment link?')) {
+      return;
+    }
+
+    setDeleting(linkId);
+    try {
+      const response = await fetch(`/api/payment-links?id=${linkId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        await fetchPaymentLinks();
+      }
+    } catch (error) {
+      console.error('Error deleting payment link:', error);
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -137,20 +159,36 @@ export default function PaymentLinksPage() {
         ) : (
           <div className="space-y-4">
             {links.map((link: any) => (
-              <div key={link.id} className="card-hover p-4">
-                <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>{link.name}</h3>
-                <a
-                  href={link.stripe_payment_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm hover:underline break-all"
-                  style={{ color: 'var(--color-accent)' }}
-                >
-                  {link.stripe_payment_link}
-                </a>
-                <p className="text-xs text-muted mt-2">
-                  Created: {new Date(link.created_at).toLocaleDateString()}
-                </p>
+              <div key={link.id} className="card p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>{link.name}</h3>
+                    <a
+                      href={link.stripe_payment_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm hover:underline break-all"
+                      style={{ color: 'var(--color-accent)' }}
+                    >
+                      {link.stripe_payment_link}
+                    </a>
+                    <p className="text-xs text-muted mt-2">
+                      Created: {new Date(link.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(link.id)}
+                    disabled={deleting === link.id}
+                    className="ml-4 px-3 py-1 text-sm btn btn-secondary hover:opacity-80"
+                    style={{
+                      backgroundColor: 'var(--color-danger)',
+                      color: '#fff',
+                      border: 'none'
+                    }}
+                  >
+                    {deleting === link.id ? 'Deleting...' : '🗑️ Delete'}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
