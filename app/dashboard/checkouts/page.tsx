@@ -28,26 +28,26 @@ function CheckoutCard({ session }: { session: any }) {
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+    <div className="card-hover p-4">
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="font-semibold text-lg">{session.name}</h3>
-          <p className="text-sm text-gray-600">{session.product_name}</p>
+          <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>{session.name}</h3>
+          <p className="text-sm text-secondary">{session.product_name}</p>
         </div>
         <div className="text-right">
-          <p className="font-semibold text-lg">
+          <p className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>
             ${(session.amount / 100).toFixed(2)} {session.currency.toUpperCase()}
           </p>
         </div>
       </div>
-      <p className="text-xs text-gray-500 mt-2">
+      <p className="text-xs text-muted mt-2">
         Created: {new Date(session.created_at).toLocaleDateString()}
       </p>
       <div className="mt-4 flex gap-2">
         <button
           onClick={handleTestCheckout}
           disabled={testLoading}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 text-sm font-medium"
+          className="px-4 py-2 btn btn-primary text-sm"
         >
           {testLoading ? 'Creating...' : '🧪 Test Checkout'}
         </button>
@@ -56,7 +56,7 @@ function CheckoutCard({ session }: { session: any }) {
             href={testUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
+            className="px-4 py-2 btn btn-secondary text-sm"
           >
             Open Link
           </a>
@@ -120,26 +120,26 @@ export default function CheckoutsPage() {
     <div>
       <div className="mb-8 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Checkout Sessions</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-h1">Checkout Sessions</h1>
+          <p className="text-secondary mt-2">
             Create and manage Stripe checkout sessions
           </p>
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
+          className="btn btn-primary px-6 py-3"
         >
           + Create Checkout
         </button>
       </div>
 
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-8 max-w-md w-full mx-4">
-            <h2 className="text-2xl font-bold mb-6">Create Checkout Session</h2>
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="card p-8 max-w-md w-full mx-4">
+            <h2 className="text-h2">Create Checkout Session</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="form-label">
                   Session Name
                 </label>
                 <input
@@ -147,12 +147,12 @@ export default function CheckoutsPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="form-input"
                   placeholder="e.g., Pro Plan Checkout"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="form-label">
                   Product Name
                 </label>
                 <input
@@ -160,12 +160,12 @@ export default function CheckoutsPage() {
                   value={formData.product_name}
                   onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="form-input"
                   placeholder="e.g., Pro Plan"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="form-label">
                   Amount
                 </label>
                 <input
@@ -174,18 +174,18 @@ export default function CheckoutsPage() {
                   value={formData.amount}
                   onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="form-input"
                   placeholder="99.00"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="form-label">
                   Currency
                 </label>
                 <select
                   value={formData.currency}
                   onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="form-input"
                 >
                   <option value="usd">USD</option>
                   <option value="eur">EUR</option>
@@ -197,14 +197,14 @@ export default function CheckoutsPage() {
                 <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="flex-1 btn btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                  className="flex-1 btn btn-primary"
                 >
                   {loading ? 'Creating...' : 'Create'}
                 </button>
@@ -214,17 +214,17 @@ export default function CheckoutsPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="card">
         {sessions.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">💳</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No checkout sessions yet</h3>
-            <p className="text-gray-600 mb-6">
+            <h3 className="text-h3 mb-2">No checkout sessions yet</h3>
+            <p className="text-secondary mb-6">
               Create your first checkout session to start accepting payments
             </p>
             <button
               onClick={() => setShowCreateForm(true)}
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
+              className="btn btn-primary px-6 py-3"
             >
               Create Checkout
             </button>

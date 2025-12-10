@@ -86,46 +86,40 @@ export default function DomainsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Custom Domain</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-h1">Custom Domain</h1>
+        <p className="text-secondary mt-2">
           Configure your custom domain for thank you pages
         </p>
       </div>
 
       {message && (
-        <div
-          className={`mb-6 p-4 rounded-lg ${
-            message.type === 'success'
-              ? 'bg-green-50 text-green-800 border border-green-200'
-              : 'bg-red-50 text-red-800 border border-red-200'
-          }`}
-        >
+        <div className={message.type === 'success' ? 'alert alert-success mb-6' : 'alert alert-danger mb-6'}>
           {message.text}
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div className="card p-8">
         {domainStatus === 'none' && !isEditing ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🌐</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No custom domain configured</h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            <h3 className="text-h3 mb-2">No custom domain configured</h3>
+            <p className="text-secondary mb-6 max-w-md mx-auto">
               Set up a custom domain (e.g., ty.yourdomain.com) to use for your thank you pages
             </p>
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
+              className="btn btn-primary px-6 py-3"
             >
               Configure Domain
             </button>
           </div>
         ) : (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Domain Configuration</h2>
+            <h2 className="text-h2 mb-6">Domain Configuration</h2>
 
             <form onSubmit={handleSaveDomain} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="form-label">
                   Custom Domain
                 </label>
                 <input
@@ -134,9 +128,10 @@ export default function DomainsPage() {
                   onChange={(e) => setCustomDomain(e.target.value)}
                   placeholder="ty.yourdomain.com"
                   disabled={domainStatus === 'verified'}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100"
+                  className="form-input"
+                  style={domainStatus === 'verified' ? { opacity: 0.6 } : {}}
                 />
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-secondary">
                   Enter the subdomain you want to use for thank you pages (e.g., ty.yourdomain.com)
                 </p>
               </div>
@@ -146,7 +141,7 @@ export default function DomainsPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50"
+                    className="btn btn-primary px-6 py-3"
                   >
                     {loading ? 'Saving...' : 'Save Domain'}
                   </button>
@@ -157,7 +152,7 @@ export default function DomainsPage() {
                         setIsEditing(false);
                         setCustomDomain('');
                       }}
-                      className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      className="btn btn-secondary px-6 py-3"
                     >
                       Cancel
                     </button>
@@ -167,31 +162,31 @@ export default function DomainsPage() {
             </form>
 
             {domainStatus === 'pending' && (
-              <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <h3 className="font-semibold text-yellow-900 mb-4">DNS Configuration Required</h3>
-                <p className="text-sm text-yellow-800 mb-4">
+              <div className="mt-8 alert alert-warning p-6">
+                <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>DNS Configuration Required</h3>
+                <p className="text-sm text-secondary mb-4">
                   Add the following CNAME record to your DNS provider (GoDaddy, Cloudflare, Namecheap, etc.):
                 </p>
-                <div className="bg-white p-4 rounded border border-yellow-300 font-mono text-sm">
+                <div className="card p-4 font-mono text-sm">
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Type</div>
-                      <div>CNAME</div>
+                      <div className="text-xs text-muted mb-1">Type</div>
+                      <div style={{ color: 'var(--color-text-primary)' }}>CNAME</div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Name</div>
-                      <div>{customDomain.split('.')[0]}</div>
+                      <div className="text-xs text-muted mb-1">Name</div>
+                      <div style={{ color: 'var(--color-text-primary)' }}>{customDomain.split('.')[0]}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Value</div>
-                      <div>cname.vercel-dns.com</div>
+                      <div className="text-xs text-muted mb-1">Value</div>
+                      <div style={{ color: 'var(--color-text-primary)' }}>cname.vercel-dns.com</div>
                     </div>
                   </div>
                 </div>
                 <button
                   onClick={handleVerifyDomain}
                   disabled={loading}
-                  className="mt-4 bg-yellow-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition disabled:opacity-50"
+                  className="mt-4 btn btn-primary px-6 py-2"
                 >
                   {loading ? 'Verifying...' : 'Verify Domain'}
                 </button>
@@ -200,13 +195,13 @@ export default function DomainsPage() {
 
             {domainStatus === 'verified' && (
               <div className="mt-8">
-                <div className="p-6 bg-green-50 border border-green-200 rounded-lg mb-4">
+                <div className="alert alert-success p-6 mb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="text-3xl">✅</div>
                       <div>
-                        <h3 className="font-semibold text-green-900">Domain Verified</h3>
-                        <p className="text-sm text-green-800 mt-1">
+                        <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>Domain Verified</h3>
+                        <p className="text-sm text-secondary mt-1">
                           Your custom domain {customDomain} is active and ready to use
                         </p>
                       </div>
@@ -216,7 +211,7 @@ export default function DomainsPage() {
                         setIsEditing(true);
                         setDomainStatus('pending');
                       }}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium"
+                      className="btn btn-secondary px-4 py-2 text-sm"
                     >
                       Edit Domain
                     </button>
@@ -225,9 +220,9 @@ export default function DomainsPage() {
               </div>
             )}
 
-            <div className="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
-              <h3 className="font-semibold text-blue-900 mb-2">How it works</h3>
-              <ul className="text-sm text-blue-800 space-y-2">
+            <div className="mt-8 alert alert-info p-6">
+              <h3 className="font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>How it works</h3>
+              <ul className="text-sm text-secondary space-y-2">
                 <li>• Your thank you pages will be accessible at: {customDomain || 'ty.yourdomain.com'}/ty?session_id=...</li>
                 <li>• Customer emails will be automatically captured from Stripe sessions</li>
                 <li>• Your Hyros tracking script will be injected on every thank you page</li>
