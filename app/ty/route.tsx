@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { retrieveCheckoutSession } from '@/lib/stripe/client';
 import { matchPaymentLinkFromSession } from '@/lib/stripe/payment-link-matcher';
 import { logger } from '@/lib/logger';
+import DOMPurify from 'isomorphic-dompurify';
 
 export async function GET(request: NextRequest) {
   try {
@@ -176,6 +177,14 @@ export async function GET(request: NextRequest) {
     const redirectSeconds = tenant.redirect_seconds || 5;
     const redirectUrl = tenant.redirect_url || '';
 
+    // Sanitize Hyros tracking script to prevent XSS
+    const safeTrackingScript = tenant.hyros_tracking_script
+      ? DOMPurify.sanitize(tenant.hyros_tracking_script, {
+          ALLOWED_TAGS: ['script'],
+          ALLOWED_ATTR: ['src', 'type', 'async', 'defer', 'crossorigin', 'integrity'],
+        })
+      : '';
+
     return new NextResponse(
       `
       <!DOCTYPE html>
@@ -185,7 +194,7 @@ export async function GET(request: NextRequest) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Thank You - Payment Successful</title>
 
-        ${tenant.hyros_tracking_script || ''}
+        ${safeTrackingScript}
 
         <style>
           * {
