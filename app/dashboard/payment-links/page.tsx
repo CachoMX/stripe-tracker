@@ -73,7 +73,7 @@ export default function PaymentLinksPage() {
     }
   };
 
-  const handleDelete = async (linkId: string) {
+  const handleDelete = async (linkId: string) => {
     if (!confirm('Are you sure you want to delete this payment link?')) {
       return;
     }
