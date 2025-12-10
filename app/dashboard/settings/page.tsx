@@ -13,6 +13,9 @@ export default function SettingsPage() {
     stripe_secret_key: '',
     stripe_publishable_key: '',
     hyros_tracking_script: '',
+    redirect_enabled: false,
+    redirect_seconds: 5,
+    redirect_url: '',
   });
 
   useEffect(() => {
@@ -29,6 +32,9 @@ export default function SettingsPage() {
           stripe_secret_key: data.tenant.stripe_secret_key || '',
           stripe_publishable_key: data.tenant.stripe_publishable_key || '',
           hyros_tracking_script: data.tenant.hyros_tracking_script || '',
+          redirect_enabled: data.tenant.redirect_enabled || false,
+          redirect_seconds: data.tenant.redirect_seconds || 5,
+          redirect_url: data.tenant.redirect_url || '',
         });
       }
     } catch (error) {
@@ -187,6 +193,79 @@ head.appendChild(script);
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
               <strong>Where to find:</strong> Go to Hyros Dashboard → Universal Script
+            </p>
+          </div>
+        </div>
+
+        {/* Post-Payment Redirect Configuration */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            🔄 Post-Payment Redirect
+          </h2>
+
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="redirect_enabled"
+                checked={formData.redirect_enabled}
+                onChange={(e) =>
+                  setFormData({ ...formData, redirect_enabled: e.target.checked })
+                }
+                className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+              />
+              <label htmlFor="redirect_enabled" className="ml-2 text-sm font-medium text-gray-700">
+                Enable automatic redirect after payment
+              </label>
+            </div>
+
+            {formData.redirect_enabled && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Wait Time (seconds) *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="60"
+                    value={formData.redirect_seconds}
+                    onChange={(e) =>
+                      setFormData({ ...formData, redirect_seconds: parseInt(e.target.value) || 5 })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Number of seconds to wait before redirecting (1-60)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Redirect URL *
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.redirect_url}
+                    onChange={(e) =>
+                      setFormData({ ...formData, redirect_url: e.target.value })
+                    }
+                    placeholder="https://yourwebsite.com/next-step"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Full URL where customers will be redirected after payment
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Tip:</strong> Use this to redirect customers to the next step in your funnel after a successful payment.
             </p>
           </div>
         </div>

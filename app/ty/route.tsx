@@ -138,7 +138,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(url.toString());
     }
 
-    // Render thank you page with Hyros script
+    // Render thank you page with Hyros script and optional redirect
+    const redirectEnabled = tenant.redirect_enabled || false;
+    const redirectSeconds = tenant.redirect_seconds || 5;
+    const redirectUrl = tenant.redirect_url || '';
+
     return new NextResponse(
       `
       <!DOCTYPE html>
@@ -206,6 +210,31 @@ export async function GET(request: NextRequest) {
             color: #374151;
           }
 
+          .countdown {
+            font-size: 1.5rem;
+            color: rgb(127, 86, 217);
+            font-weight: 700;
+            margin: 30px 0 20px 0;
+            animation: pulse 1s ease-in-out infinite;
+          }
+
+          @keyframes pulse {
+            0%, 100% {
+              transform: scale(1);
+              opacity: 1;
+            }
+            50% {
+              transform: scale(1.05);
+              opacity: 0.8;
+            }
+          }
+
+          .redirect-message {
+            font-size: 1rem;
+            color: #6b7280;
+            margin-top: 10px;
+          }
+
           @media (max-width: 600px) {
             h1 {
               font-size: 1.8rem;
@@ -230,7 +259,41 @@ export async function GET(request: NextRequest) {
           <p class="message" style="font-size: 1rem; color: #6b7280;">
             You will receive a confirmation email shortly.
           </p>
+
+          ${
+            redirectEnabled && redirectUrl
+              ? `
+          <div class="countdown" id="countdown">
+            Redirecting in <span id="seconds">${redirectSeconds}</span>...
+          </div>
+          <p class="redirect-message">You will be automatically redirected to the next step.</p>
+          `
+              : ''
+          }
         </div>
+
+        ${
+          redirectEnabled && redirectUrl
+            ? `
+        <script>
+          let seconds = ${redirectSeconds};
+          const countdownElement = document.getElementById('seconds');
+
+          const interval = setInterval(() => {
+            seconds--;
+            if (countdownElement) {
+              countdownElement.textContent = seconds;
+            }
+
+            if (seconds <= 0) {
+              clearInterval(interval);
+              window.location.href = '${redirectUrl}';
+            }
+          }, 1000);
+        </script>
+        `
+            : ''
+        }
       </body>
       </html>
       `,
