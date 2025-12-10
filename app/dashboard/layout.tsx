@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import LogoutButton from '@/components/LogoutButton';
 import ThemeToggle from '@/app/components/ThemeToggle';
+import { getOrCreateTenant, hasAccess, getDaysLeftInTrial, isTrialActive } from '@/lib/tenant-helpers';
+import TrialBanner from '@/components/TrialBanner';
 
 export default async function DashboardLayout({
   children,
@@ -15,6 +17,17 @@ export default async function DashboardLayout({
   if (!user) {
     redirect('/login');
   }
+
+  // Get or create tenant with trial
+  const tenant = await getOrCreateTenant(user.id, user.email);
+
+  // Check if user has access (trial or paid)
+  if (!hasAccess(tenant)) {
+    redirect('/pricing?expired=true');
+  }
+
+  const showTrialBanner = isTrialActive(tenant);
+  const daysLeft = getDaysLeftInTrial(tenant);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
@@ -62,6 +75,7 @@ export default async function DashboardLayout({
 
       {/* Main Content */}
       <main className="main-content ml-64 p-8">
+        {showTrialBanner && <TrialBanner daysLeft={daysLeft} />}
         {children}
       </main>
     </div>

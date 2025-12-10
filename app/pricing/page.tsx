@@ -76,8 +76,10 @@ function AutoCheckoutHandler({ onSelectPlan }: { onSelectPlan: (planId: string) 
 }
 
 function PricingContent() {
+  const searchParams = useSearchParams();
   const [isYearly, setIsYearly] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
+  const trialExpired = searchParams.get('expired') === 'true';
 
   const handleSelectPlan = async (planId: string) => {
     setLoading(planId);
@@ -155,11 +157,23 @@ function PricingContent() {
 
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-6 py-16 text-center">
+        {trialExpired && (
+          <div className="max-w-2xl mx-auto mb-8 p-4 rounded-lg border-2" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgb(239, 68, 68)' }}>
+            <p className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>
+              ⏰ Your trial has ended
+            </p>
+            <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+              Choose a plan below to continue using Ping
+            </p>
+          </div>
+        )}
         <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>
           Simple, Transparent Pricing
         </h1>
         <p className="text-xl max-w-2xl mx-auto mb-10" style={{ color: 'var(--color-text-secondary)' }}>
           Choose the plan that fits your business. Upgrade or downgrade anytime.
+          <br />
+          <span className="text-accent font-semibold">Start with a 14-day free trial</span>
         </p>
 
         {/* Billing Toggle */}

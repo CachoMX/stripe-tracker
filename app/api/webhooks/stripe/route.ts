@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
                 subscription_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
                 subscription_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
                 transaction_limit: PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS],
+                trial_ends_at: null, // Remove trial when subscription starts
               })
               .eq('id', tenantId);
 
