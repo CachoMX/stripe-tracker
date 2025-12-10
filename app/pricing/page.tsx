@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -56,8 +57,22 @@ const plans = [
 ];
 
 export default function PricingPage() {
+  const searchParams = useSearchParams();
   const [isYearly, setIsYearly] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
+
+  // Auto-checkout after signup
+  useEffect(() => {
+    const autoCheckout = searchParams.get('autoCheckout');
+    const plan = searchParams.get('plan');
+
+    if (autoCheckout === 'true' && plan) {
+      // Wait a moment for user to see the page, then start checkout
+      setTimeout(() => {
+        handleSelectPlan(plan);
+      }, 500);
+    }
+  }, [searchParams]);
 
   const handleSelectPlan = async (planId: string) => {
     setLoading(planId);
@@ -74,6 +89,9 @@ export default function PricingPage() {
       if (response.ok && data.url) {
         // Redirect to Stripe Checkout
         window.location.href = data.url;
+      } else if (response.status === 401) {
+        // User not logged in - redirect to signup with plan in URL
+        window.location.href = `/signup?plan=${planId}&redirect=pricing`;
       } else {
         alert(data.error || 'Failed to create checkout session');
         setLoading(null);

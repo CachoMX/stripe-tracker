@@ -1,18 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase/client';
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  // Get redirect params from URL
+  const planFromUrl = searchParams.get('plan');
+  const redirectTo = searchParams.get('redirect');
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +46,12 @@ export default function SignupPage() {
       // Auto login after signup
       if (data.user) {
         setTimeout(() => {
-          router.push('/dashboard');
+          // If there's a plan selected, redirect to pricing to complete checkout
+          if (planFromUrl && redirectTo === 'pricing') {
+            router.push(`/pricing?plan=${planFromUrl}&autoCheckout=true`);
+          } else {
+            router.push('/dashboard');
+          }
           router.refresh();
         }, 2000);
       }
