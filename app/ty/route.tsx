@@ -107,17 +107,36 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Retrieve session from Stripe
-    const session = await retrieveCheckoutSession(
-      tenant.stripe_secret_key,
-      sessionId
-    );
+    // First check if this might be a subscription by trying with platform key
+    let session;
+    let isSubscription = false;
+
+    try {
+      // Try with tenant's key first (for payment links)
+      session = await retrieveCheckoutSession(
+        tenant.stripe_secret_key,
+        sessionId
+      );
+    } catch (error) {
+      // If that fails, try with platform key (for subscriptions)
+      try {
+        session = await retrieveCheckoutSession(
+          process.env.STRIPE_SECRET_KEY || '',
+          sessionId
+        );
+        isSubscription = true; // If platform key worked, it's a subscription
+      } catch (platformError) {
+        throw error; // Throw original error if both fail
+      }
+    }
+
+    // Double-check if it's a subscription
+    if (!isSubscription) {
+      isSubscription = session.metadata?.subscription_payment === 'true' || session.mode === 'subscription';
+    }
 
     const customerEmail = session.customer_details?.email || 'No email provided';
     const customerName = session.customer_details?.name || '';
-
-    // Check if this is a subscription payment
-    const isSubscription = session.metadata?.subscription_payment === 'true' || session.mode === 'subscription';
 
     // Try to match payment link from session
     let paymentLinkId = null;
