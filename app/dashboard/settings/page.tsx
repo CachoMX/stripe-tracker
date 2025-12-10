@@ -59,8 +59,17 @@ export default function SettingsPage() {
   const handleStripeConnect = () => {
     const clientId = process.env.NEXT_PUBLIC_STRIPE_PLATFORM_CLIENT_ID || 'ca_TZnrXjRmCKzgCWufB8rMvcZI3hKdORBJ';
     const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/stripe/callback`;
-    const stripeOAuthUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=read_write&redirect_uri=${encodeURIComponent(redirectUri)}`;
 
+    // Build OAuth URL with parameters to skip optional features
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: clientId,
+      scope: 'read_write',
+      redirect_uri: redirectUri,
+      'stripe_user[product_description]': 'payment_tracking', // Skip tax/climate upsells
+    });
+
+    const stripeOAuthUrl = `https://connect.stripe.com/oauth/authorize?${params.toString()}`;
     window.location.href = stripeOAuthUrl;
   };
 
