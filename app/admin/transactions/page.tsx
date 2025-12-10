@@ -99,8 +99,8 @@ export default function AdminTransactionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Transactions</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Transactions</h1>
+          <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>
             {transactions.length} transactions
           </p>
         </div>
@@ -108,13 +108,15 @@ export default function AdminTransactionsPage() {
           <button
             onClick={exportToCSV}
             disabled={transactions.length === 0}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
           >
             📥 Export CSV
           </button>
           <button
             onClick={fetchTransactions}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            className="px-4 py-2 rounded-lg transition"
+            style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
           >
             🔄 Refresh
           </button>
@@ -124,21 +126,21 @@ export default function AdminTransactionsPage() {
       {/* Summary Stats */}
       {summary && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-500 mb-1">Total Amount</p>
-            <p className="text-3xl font-bold text-gray-900">
+          <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>Total Amount</p>
+            <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
               ${summary.totalAmount.toLocaleString()}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-500 mb-1">Average Transaction</p>
-            <p className="text-3xl font-bold text-gray-900">
+          <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>Average Transaction</p>
+            <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
               ${summary.averageAmount.toFixed(2)}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-500 mb-1">Total Count</p>
-            <p className="text-3xl font-bold text-gray-900">
+          <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>Total Count</p>
+            <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
               {summary.count}
             </p>
           </div>
@@ -146,12 +148,12 @@ export default function AdminTransactionsPage() {
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)' }}>
         <form onSubmit={handleFilter} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Client ID Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 Client ID (Tenant ID)
               </label>
               <input
@@ -159,33 +161,48 @@ export default function AdminTransactionsPage() {
                 value={clientFilter}
                 onChange={(e) => setClientFilter(e.target.value)}
                 placeholder="Enter tenant ID..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:outline-none"
+                style={{
+                  background: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)'
+                }}
               />
             </div>
 
             {/* Date From */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 From Date
               </label>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:outline-none"
+                style={{
+                  background: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)'
+                }}
               />
             </div>
 
             {/* Date To */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 To Date
               </label>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:outline-none"
+                style={{
+                  background: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)'
+                }}
               />
             </div>
           </div>
@@ -193,7 +210,8 @@ export default function AdminTransactionsPage() {
           <div className="flex space-x-3">
             <button
               type="submit"
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+              className="px-6 py-2 rounded-lg transition"
+              style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
             >
               Apply Filters
             </button>
@@ -205,7 +223,8 @@ export default function AdminTransactionsPage() {
                 setDateTo('');
                 router.push('/admin/transactions');
               }}
-              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+              className="px-6 py-2 rounded-lg transition"
+              style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
             >
               Clear
             </button>
@@ -214,87 +233,87 @@ export default function AdminTransactionsPage() {
       </div>
 
       {/* Transactions Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="rounded-lg shadow overflow-hidden" style={{ background: 'var(--color-bg-card)' }}>
         {loading ? (
           <div className="p-8 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-indigo-600"></div>
-            <p className="mt-2 text-gray-500">Loading transactions...</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-t-4" style={{ borderColor: 'var(--color-bg-hover)', borderTopColor: 'var(--color-accent)' }}></div>
+            <p className="mt-2" style={{ color: 'var(--color-text-secondary)' }}>Loading transactions...</p>
           </div>
         ) : transactions.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center" style={{ color: 'var(--color-text-secondary)' }}>
             No transactions found
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Client
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Customer
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Amount
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Session ID
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y" style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
                 {transactions.map((transaction) => (
-                  <tr key={transaction.id} className="hover:bg-gray-50 transition">
+                  <tr key={transaction.id} className="hover:transition" onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-bg-card)'}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                         {new Date(transaction.created_at).toLocaleDateString()}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                         {new Date(transaction.created_at).toLocaleTimeString()}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                         {transaction.tenants.email}
                       </div>
                       {transaction.tenants.custom_domain && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                           {transaction.tenants.custom_domain}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                         {transaction.customer_email}
                       </div>
                       {transaction.customer_name && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                           {transaction.customer_name}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                         ${(transaction.amount / 100).toFixed(2)}
                       </div>
-                      <div className="text-xs text-gray-500 uppercase">
+                      <div className="text-xs uppercase" style={{ color: 'var(--color-text-secondary)' }}>
                         {transaction.currency}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                      <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(80, 245, 172, 0.2)', color: 'var(--color-accent)' }}>
                         {transaction.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <code className="text-xs text-gray-500">
+                      <code className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                         {transaction.stripe_session_id.substring(0, 20)}...
                       </code>
                     </td>

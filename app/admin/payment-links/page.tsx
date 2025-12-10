@@ -80,47 +80,48 @@ export default function AdminPaymentLinksPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Payment Links</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Payment Links</h1>
+          <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>
             {paymentLinks.length} total links
           </p>
         </div>
         <button
           onClick={fetchPaymentLinks}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+          className="px-4 py-2 rounded-lg transition"
+          style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
         >
-          🔄 Refresh
+          Refresh
         </button>
       </div>
 
       {/* Summary Stats */}
       {summary && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-500 mb-1">Active Links</p>
-            <p className="text-3xl font-bold text-gray-900">{summary.activeLinks}</p>
+          <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>Active Links</p>
+            <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{summary.activeLinks}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-500 mb-1">Inactive Links</p>
-            <p className="text-3xl font-bold text-gray-900">{summary.inactiveLinks}</p>
+          <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>Inactive Links</p>
+            <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{summary.inactiveLinks}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-500 mb-1">Total Sales</p>
-            <p className="text-3xl font-bold text-gray-900">{summary.totalSales}</p>
+          <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>Total Sales</p>
+            <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{summary.totalSales}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-500 mb-1">Total Revenue</p>
-            <p className="text-3xl font-bold text-gray-900">${summary.totalRevenue.toLocaleString()}</p>
+          <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>Total Revenue</p>
+            <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>${summary.totalRevenue.toLocaleString()}</p>
           </div>
         </div>
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
         <form onSubmit={handleFilter} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 Search by Name
               </label>
               <input
@@ -128,7 +129,13 @@ export default function AdminPaymentLinksPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Link name..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-offset-0"
+                style={{
+                  background: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)',
+                  outline: 'none'
+                }}
               />
             </div>
 
@@ -140,14 +147,15 @@ export default function AdminPaymentLinksPage() {
                   onChange={(e) => setActiveOnly(e.target.checked)}
                   className="w-4 h-4 rounded"
                 />
-                <span className="text-sm font-medium text-gray-700">Active only</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Active only</span>
               </label>
             </div>
           </div>
 
           <button
             type="submit"
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            className="px-6 py-2 rounded-lg transition"
+            style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
           >
             Apply Filters
           </button>
@@ -155,94 +163,95 @@ export default function AdminPaymentLinksPage() {
       </div>
 
       {/* Payment Links Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="rounded-lg overflow-hidden" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
         {loading ? (
           <div className="p-8 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-indigo-600"></div>
-            <p className="mt-2 text-gray-500">Loading payment links...</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-t-4" style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-accent)' }}></div>
+            <p className="mt-2" style={{ color: 'var(--color-text-secondary)' }}>Loading payment links...</p>
           </div>
         ) : paymentLinks.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center" style={{ color: 'var(--color-text-secondary)' }}>
             No payment links found
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Link Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Client
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Sales
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Revenue
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Created
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody style={{ background: 'var(--color-bg-card)' }}>
                 {paymentLinks.map((link) => (
-                  <tr key={link.id} className="hover:bg-gray-50 transition">
+                  <tr key={link.id} className="transition" style={{ borderBottom: '1px solid var(--color-border)' }}>
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                         {link.name}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                         {link.tenants.email}
                       </div>
                       {link.tenants.custom_domain && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                           {link.tenants.custom_domain}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {link.active ? (
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                        <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(80, 245, 172, 0.1)', color: 'var(--color-accent)' }}>
                           Active
                         </span>
                       ) : (
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                        <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-text-secondary)' }}>
                           Inactive
                         </span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                         {link.stats.totalSales}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                         ${link.stats.totalRevenue.toFixed(2)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                         {new Date(link.created_at).toLocaleDateString()}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
                         onClick={() => copyLink(link.stripe_payment_link)}
-                        className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+                        className="text-sm font-medium"
+                        style={{ color: 'var(--color-accent)' }}
                       >
-                        📋 Copy
+                        Copy
                       </button>
                     </td>
                   </tr>

@@ -38,13 +38,13 @@ export default function AdminDashboard() {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Overview</h1>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Admin Overview</h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="bg-white rounded-lg shadow p-6 animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+            <div key={i} className="rounded-lg shadow p-6 animate-pulse" style={{ background: 'var(--color-bg-card)' }}>
+              <div className="h-4 rounded w-1/2 mb-4" style={{ background: 'var(--color-bg-hover)' }}></div>
+              <div className="h-8 rounded w-3/4" style={{ background: 'var(--color-bg-hover)' }}></div>
             </div>
           ))}
         </div>
@@ -54,8 +54,8 @@ export default function AdminDashboard() {
 
   if (!stats) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <p className="text-red-800">Failed to load admin statistics</p>
+      <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid #ef4444' }}>
+        <p style={{ color: '#ef4444' }}>Failed to load admin statistics</p>
       </div>
     );
   }
@@ -65,12 +65,12 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Overview</h1>
-          <p className="text-gray-500 mt-1">Global statistics and insights</p>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Admin Overview</h1>
+          <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>Global statistics and insights</p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-gray-500">Last updated</p>
-          <p className="text-sm font-medium">{new Date().toLocaleString()}</p>
+          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Last updated</p>
+          <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{new Date().toLocaleString()}</p>
         </div>
       </div>
 
@@ -81,7 +81,6 @@ export default function AdminDashboard() {
           title="Total Clients"
           value={stats.totalClients}
           icon="👥"
-          color="blue"
           subtitle={`${stats.activeClients} active`}
         />
 
@@ -90,7 +89,6 @@ export default function AdminDashboard() {
           title="Active Subscriptions"
           value={stats.activeClients}
           icon="✅"
-          color="green"
           subtitle={`${Math.round((stats.activeClients / stats.totalClients) * 100)}% of total`}
         />
 
@@ -99,7 +97,6 @@ export default function AdminDashboard() {
           title="Transactions (30d)"
           value={stats.transactionsLast30Days}
           icon="💰"
-          color="purple"
           subtitle={`${Math.round(stats.transactionsLast30Days / 30)}/day avg`}
         />
 
@@ -108,7 +105,6 @@ export default function AdminDashboard() {
           title="Total Revenue"
           value={`$${stats.totalRevenue.toLocaleString()}`}
           icon="💵"
-          color="green"
           subtitle="All time"
         />
 
@@ -117,7 +113,6 @@ export default function AdminDashboard() {
           title="Last 7 Days Revenue"
           value={`$${stats.recentRevenue.toLocaleString()}`}
           icon="📈"
-          color="indigo"
           subtitle={
             stats.revenueGrowth >= 0
               ? `↗ ${stats.revenueGrowth}% vs prev week`
@@ -131,7 +126,6 @@ export default function AdminDashboard() {
           title="Active Payment Links"
           value={stats.activePaymentLinks}
           icon="🔗"
-          color="blue"
           subtitle="Currently active"
         />
 
@@ -140,7 +134,6 @@ export default function AdminDashboard() {
           title="Custom Domains"
           value={stats.customDomains}
           icon="🌐"
-          color="purple"
           subtitle="Configured"
         />
 
@@ -149,14 +142,13 @@ export default function AdminDashboard() {
           title="MRR (Estimate)"
           value={`$${Math.round(stats.activeClients * 29).toLocaleString()}`}
           icon="🔄"
-          color="green"
           subtitle="Monthly Recurring"
         />
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+      <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)' }}>
+        <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <QuickActionButton
             href="/admin/clients"
@@ -186,41 +178,32 @@ function StatCard({
   title,
   value,
   icon,
-  color,
   subtitle,
   trend,
 }: {
   title: string;
   value: string | number;
   icon: string;
-  color: 'blue' | 'green' | 'purple' | 'indigo';
   subtitle?: string;
   trend?: 'up' | 'down';
 }) {
-  const colorClasses = {
-    blue: 'from-blue-500 to-blue-600',
-    green: 'from-green-500 to-green-600',
-    purple: 'from-purple-500 to-purple-600',
-    indigo: 'from-indigo-500 to-indigo-600',
-  };
-
   return (
-    <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-6">
+    <div className="rounded-lg shadow hover:shadow-lg transition p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
       <div className="flex items-center justify-between mb-4">
-        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center text-2xl`}>
+        <div className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl" style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}>
           {icon}
         </div>
         {trend && (
-          <div className={`text-sm font-medium ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+          <div className={`text-sm font-medium`} style={{ color: trend === 'up' ? 'var(--color-accent)' : '#ef4444' }}>
             {trend === 'up' ? '↗' : '↘'}
           </div>
         )}
       </div>
       <div>
-        <p className="text-sm text-gray-500 mb-1">{title}</p>
-        <p className="text-3xl font-bold text-gray-900">{value}</p>
+        <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>{title}</p>
+        <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{value}</p>
         {subtitle && (
-          <p className="text-xs text-gray-500 mt-2">{subtitle}</p>
+          <p className="text-xs mt-2" style={{ color: 'var(--color-text-secondary)' }}>{subtitle}</p>
         )}
       </div>
     </div>
@@ -241,14 +224,21 @@ function QuickActionButton({
   return (
     <a
       href={href}
-      className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:shadow-md transition group"
+      className="flex items-start space-x-4 p-4 rounded-lg hover:shadow-md transition group"
+      style={{ border: '1px solid var(--color-border)', background: 'var(--color-bg-card)' }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = 'var(--color-accent)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = 'var(--color-border)';
+      }}
     >
       <div className="text-3xl group-hover:scale-110 transition">{icon}</div>
       <div>
-        <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition">
+        <h3 className="font-semibold group-hover:transition" style={{ color: 'var(--color-text-primary)' }}>
           {title}
         </h3>
-        <p className="text-sm text-gray-500">{description}</p>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{description}</p>
       </div>
     </a>
   );

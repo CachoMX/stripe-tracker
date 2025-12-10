@@ -22,25 +22,30 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'var(--color-bg-primary)' }}>
       {/* Admin Header */}
-      <header className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg">
+      <header className="shadow-lg" style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <div className="flex items-center">
                 <div className="text-2xl font-bold">⚡</div>
                 <div className="ml-2">
-                  <h1 className="text-xl font-bold">Admin Dashboard</h1>
-                  <p className="text-xs text-purple-200">Ping It Now - System Admin</p>
+                  <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Admin Dashboard</h1>
+                  <p className="text-xs" style={{ color: 'var(--color-accent)' }}>Ping It Now - System Admin</p>
                 </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm">👤 {user.email}</span>
+              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>👤 {user.email}</span>
               <Link
                 href="/dashboard"
-                className="px-3 py-1 bg-white/20 rounded hover:bg-white/30 transition text-sm"
+                className="px-3 py-1 rounded transition text-sm"
+                style={{
+                  background: 'var(--color-bg-hover)',
+                  color: 'var(--color-text-primary)',
+                  border: '1px solid var(--color-border)'
+                }}
               >
                 Regular Dashboard
               </Link>
@@ -51,7 +56,7 @@ export default async function AdminLayout({
 
       <div className="flex">
         {/* Sidebar Navigation */}
-        <aside className="w-64 bg-white shadow-md min-h-screen">
+        <aside className="w-64 shadow-md min-h-screen" style={{ background: 'var(--color-bg-secondary)', borderRight: '1px solid var(--color-border)' }}>
           <nav className="p-4 space-y-1">
             <NavLink href="/admin/dashboard" icon="📊">
               Overview
@@ -75,7 +80,7 @@ export default async function AdminLayout({
               Domains
             </NavLink>
 
-            <div className="pt-4 mt-4 border-t border-gray-200">
+            <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
               <NavLink href="/admin/settings" icon="⚙️">
                 Settings
               </NavLink>
@@ -104,10 +109,21 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition group"
+      className="flex items-center space-x-3 px-4 py-2 rounded-lg transition group"
+      style={{
+        color: 'var(--color-text-secondary)',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'var(--color-bg-hover)';
+        e.currentTarget.style.color = 'var(--color-text-primary)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'transparent';
+        e.currentTarget.style.color = 'var(--color-text-secondary)';
+      }}
     >
       <span className="text-xl group-hover:scale-110 transition">{icon}</span>
-      <span className="font-medium text-gray-700 group-hover:text-gray-900">
+      <span className="font-medium">
         {children}
       </span>
     </Link>

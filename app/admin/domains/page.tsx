@@ -40,9 +40,9 @@ export default function AdminDomainsPage() {
 
   function getStatusBadge(domain: Domain) {
     if (domain.subscription_status === 'active') {
-      return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Active</span>;
+      return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(80, 245, 172, 0.1)', color: 'var(--color-accent)' }}>Active</span>;
     } else {
-      return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Inactive</span>;
+      return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-text-secondary)' }}>Inactive</span>;
     }
   }
 
@@ -51,48 +51,49 @@ export default function AdminDomainsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Custom Domains</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Custom Domains</h1>
+          <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>
             {domains.length} configured domains
           </p>
         </div>
         <button
           onClick={fetchDomains}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+          className="px-4 py-2 rounded-lg transition"
+          style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
         >
-          🔄 Refresh
+          Refresh
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-sm text-gray-500 mb-1">Total Domains</p>
-          <p className="text-3xl font-bold text-gray-900">{domains.length}</p>
+        <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+          <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>Total Domains</p>
+          <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{domains.length}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-sm text-gray-500 mb-1">Active Clients</p>
-          <p className="text-3xl font-bold text-gray-900">
+        <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+          <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>Active Clients</p>
+          <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
             {domains.filter(d => d.subscription_status === 'active').length}
           </p>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-sm text-gray-500 mb-1">Total Transactions</p>
-          <p className="text-3xl font-bold text-gray-900">
+        <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+          <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>Total Transactions</p>
+          <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
             {domains.reduce((sum, d) => sum + d.stats.transactions, 0)}
           </p>
         </div>
       </div>
 
       {/* Domains Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="rounded-lg overflow-hidden" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
         {loading ? (
           <div className="p-8 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-indigo-600"></div>
-            <p className="mt-2 text-gray-500">Loading domains...</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-t-4" style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-accent)' }}></div>
+            <p className="mt-2" style={{ color: 'var(--color-text-secondary)' }}>Loading domains...</p>
           </div>
         ) : domains.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center" style={{ color: 'var(--color-text-secondary)' }}>
             <div className="text-6xl mb-4">🌐</div>
             <p className="text-lg font-medium">No custom domains configured yet</p>
             <p className="text-sm mt-2">Domains will appear here when clients configure them</p>
@@ -100,87 +101,89 @@ export default function AdminDomainsPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Domain
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Client Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Plan
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Transactions
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Active Links
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Configured
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody style={{ background: 'var(--color-bg-card)' }}>
                 {domains.map((domain) => (
-                  <tr key={domain.id} className="hover:bg-gray-50 transition">
+                  <tr key={domain.id} className="transition" style={{ borderBottom: '1px solid var(--color-border)' }}>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <span className="text-xl mr-2">🌐</span>
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                             {domain.custom_domain}
                           </div>
                           <a
                             href={`https://${domain.custom_domain}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-indigo-600 hover:text-indigo-800"
+                            className="text-xs"
+                            style={{ color: 'var(--color-accent)' }}
                           >
-                            Visit →
+                            Visit
                           </a>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{domain.email}</div>
+                      <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{domain.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(domain)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900 capitalize">
+                      <span className="text-sm capitalize" style={{ color: 'var(--color-text-primary)' }}>
                         {domain.subscription_plan || 'N/A'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                         {domain.stats.transactions}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                         {domain.stats.paymentLinks}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                         {new Date(domain.created_at).toLocaleDateString()}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <a
                         href={`/admin/clients/${domain.id}`}
-                        className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+                        className="text-sm font-medium"
+                        style={{ color: 'var(--color-accent)' }}
                       >
-                        View Client →
+                        View Client
                       </a>
                     </td>
                   </tr>
@@ -192,9 +195,9 @@ export default function AdminDomainsPage() {
       </div>
 
       {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-blue-900 mb-2">💡 Domain Configuration</h3>
-        <p className="text-sm text-blue-800">
+      <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
+        <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-accent)' }}>Domain Configuration</h3>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
           Custom domains are configured by clients in their dashboard settings. Each domain is automatically provisioned through Vercel with SSL certificates.
         </p>
       </div>

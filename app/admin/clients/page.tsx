@@ -65,11 +65,11 @@ export default function AdminClientsPage() {
 
   function getStatusBadge(client: Client) {
     if (client.subscription_status === 'active') {
-      return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Active</span>;
+      return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(80, 245, 172, 0.2)', color: 'var(--color-accent)' }}>Active</span>;
     } else if (!client.subscription_status && client.trial_ends_at) {
-      return <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Trial</span>;
+      return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6' }}>Trial</span>;
     } else {
-      return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Inactive</span>;
+      return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-secondary)' }}>Inactive</span>;
     }
   }
 
@@ -78,26 +78,27 @@ export default function AdminClientsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Clients</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Clients</h1>
+          <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>
             {clients.length} total clients
           </p>
         </div>
         <button
           onClick={fetchClients}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+          className="px-4 py-2 rounded-lg transition"
+          style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
         >
           🔄 Refresh
         </button>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)' }}>
         <form onSubmit={handleSearch} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 Search
               </label>
               <input
@@ -105,19 +106,29 @@ export default function AdminClientsPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Email or domain..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:outline-none"
+                style={{
+                  background: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)'
+                }}
               />
             </div>
 
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 Status
               </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:outline-none"
+                style={{
+                  background: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)'
+                }}
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -128,13 +139,18 @@ export default function AdminClientsPage() {
 
             {/* Plan Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 Plan
               </label>
               <select
                 value={planFilter}
                 onChange={(e) => setPlanFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:outline-none"
+                style={{
+                  background: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)'
+                }}
               >
                 <option value="all">All Plans</option>
                 <option value="starter">Starter</option>
@@ -146,7 +162,8 @@ export default function AdminClientsPage() {
 
           <button
             type="submit"
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            className="px-6 py-2 rounded-lg transition"
+            style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
           >
             Apply Filters
           </button>
@@ -154,57 +171,57 @@ export default function AdminClientsPage() {
       </div>
 
       {/* Clients Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="rounded-lg shadow overflow-hidden" style={{ background: 'var(--color-bg-card)' }}>
         {loading ? (
           <div className="p-8 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-indigo-600"></div>
-            <p className="mt-2 text-gray-500">Loading clients...</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-t-4" style={{ borderColor: 'var(--color-bg-hover)', borderTopColor: 'var(--color-accent)' }}></div>
+            <p className="mt-2" style={{ color: 'var(--color-text-secondary)' }}>Loading clients...</p>
           </div>
         ) : clients.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center" style={{ color: 'var(--color-text-secondary)' }}>
             No clients found
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Client
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Plan
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Revenue
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Transactions
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Links
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Joined
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y" style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
                 {clients.map((client) => (
-                  <tr key={client.id} className="hover:bg-gray-50 transition">
+                  <tr key={client.id} className="hover:transition" onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-bg-card)'}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                           {client.email}
                         </div>
                         {client.custom_domain && (
-                          <div className="text-xs text-gray-500 flex items-center mt-1">
+                          <div className="text-xs flex items-center mt-1" style={{ color: 'var(--color-text-secondary)' }}>
                             🌐 {client.custom_domain}
                           </div>
                         )}
@@ -214,34 +231,35 @@ export default function AdminClientsPage() {
                       {getStatusBadge(client)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900 capitalize">
+                      <span className="text-sm capitalize" style={{ color: 'var(--color-text-primary)' }}>
                         {client.subscription_plan || 'Trial'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                         ${client.stats.revenue.toFixed(2)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                         {client.stats.transactions}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                         {client.stats.paymentLinks}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                         {new Date(client.created_at).toLocaleDateString()}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <a
                         href={`/admin/clients/${client.id}`}
-                        className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+                        className="text-sm font-medium hover:underline"
+                        style={{ color: 'var(--color-accent)' }}
                       >
                         View →
                       </a>
