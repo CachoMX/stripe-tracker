@@ -42,30 +42,48 @@ export async function POST(request: NextRequest) {
 
         // Only handle subscription checkouts
         if (session.mode === 'subscription') {
-          const tenantId = session.metadata?.tenant_id;
+          let tenantId = session.metadata?.tenant_id;
           const plan = session.metadata?.plan || 'starter';
 
-          if (tenantId && session.subscription) {
+          if (session.subscription) {
             // Get subscription details
             const subscription = await stripe.subscriptions.retrieve(
               session.subscription as string,
               { expand: ['latest_invoice', 'customer'] }
             );
 
-            await supabaseAdmin
-              .from('tenants')
-              .update({
-                stripe_subscription_id: subscription.id,
-                subscription_plan: plan,
-                subscription_status: subscription.status,
-                subscription_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
-                subscription_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
-                transaction_limit: PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS],
-                trial_ends_at: null, // Remove trial when subscription starts
-              })
-              .eq('id', tenantId);
+            // If no tenant_id in metadata, try to find by customer_id
+            if (!tenantId && session.customer) {
+              const { data: tenant } = await supabaseAdmin
+                .from('tenants')
+                .select('id')
+                .eq('stripe_customer_id', session.customer as string)
+                .single();
 
-            console.log('✅ Subscription created:', subscription.id);
+              if (tenant) {
+                tenantId = tenant.id;
+              }
+            }
+
+            if (tenantId) {
+              await supabaseAdmin
+                .from('tenants')
+                .update({
+                  stripe_customer_id: subscription.customer as string,
+                  stripe_subscription_id: subscription.id,
+                  subscription_plan: plan,
+                  subscription_status: subscription.status,
+                  subscription_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+                  subscription_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+                  transaction_limit: PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS],
+                  trial_ends_at: null, // Remove trial when subscription starts
+                })
+                .eq('id', tenantId);
+
+              console.log('✅ Subscription created:', subscription.id);
+            } else {
+              console.error('❌ Could not find tenant for subscription:', subscription.id);
+            }
           }
         }
         break;
