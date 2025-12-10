@@ -47,8 +47,8 @@ export async function GET(request: NextRequest) {
     // Find tenant by custom domain or use default
     let tenant;
 
-    // Try to find by custom domain first
-    if (host && !host.includes('localhost') && !host.includes('vercel.app')) {
+    // Try to find by custom domain first (only for verified custom domains)
+    if (host && !host.includes('localhost') && !host.includes('vercel.app') && !host.includes('pingitnow.com')) {
       const { data } = await supabaseAdmin
         .from('tenants')
         .select('*')
@@ -59,8 +59,8 @@ export async function GET(request: NextRequest) {
       tenant = data;
     }
 
-    // If localhost or no custom domain match, get the first tenant (for testing)
-    if (!tenant && (host?.includes('localhost') || host?.includes('vercel.app'))) {
+    // If no custom domain match, get the first tenant (for localhost, vercel.app, or default domains)
+    if (!tenant) {
       const { data } = await supabaseAdmin
         .from('tenants')
         .select('*')
