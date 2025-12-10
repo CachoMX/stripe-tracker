@@ -8,8 +8,6 @@ interface Subscription {
   email: string;
   subscription_status: string | null;
   subscription_plan: string | null;
-  stripe_subscription_id: string | null;
-  current_period_end: string | null;
   trial_ends_at: string | null;
   created_at: string;
 }
@@ -149,7 +147,7 @@ export default function AdminSubscriptionsPage() {
                     Plan
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
-                    Renewal / Trial End
+                    Trial End Date
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Joined
@@ -174,10 +172,10 @@ export default function AdminSubscriptionsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
-                        {sub.current_period_end
-                          ? new Date(sub.current_period_end).toLocaleDateString()
-                          : sub.trial_ends_at
-                          ? `Trial ends: ${new Date(sub.trial_ends_at).toLocaleDateString()}`
+                        {sub.trial_ends_at
+                          ? new Date(sub.trial_ends_at).toLocaleDateString()
+                          : sub.subscription_status === 'active'
+                          ? 'Active (no end date)'
                           : 'N/A'}
                       </div>
                     </td>

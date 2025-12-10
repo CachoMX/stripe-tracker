@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     // Fetch all tenants with subscription data
     const { data: subscriptions, error } = await supabaseAdmin
       .from('tenants')
-      .select('id, clerk_user_id, email, subscription_status, subscription_plan, stripe_subscription_id, current_period_end, trial_ends_at, created_at')
+      .select('id, clerk_user_id, email, subscription_status, subscription_plan, trial_ends_at, created_at')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
