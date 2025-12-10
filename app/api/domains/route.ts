@@ -123,11 +123,15 @@ export async function PUT(request: NextRequest) {
     let vercelVerified = false;
     try {
       const vercelResponse = await verifyDomainInVercel(tenant.custom_domain);
+      console.log('Vercel verification response:', vercelResponse);
       vercelVerified = vercelResponse.verified;
     } catch (vercelError: any) {
       console.error('Vercel verification error:', vercelError);
+      console.error('Error details:', vercelError.message, vercelError.stack);
       // If Vercel verification fails, we still allow manual verification
     }
+
+    console.log('Final vercelVerified value:', vercelVerified);
 
     // Update tenant domain verification status
     const { error: updateError } = await supabaseAdmin
