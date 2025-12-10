@@ -120,6 +120,55 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PUT(request: NextRequest) {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const linkId = searchParams.get('id');
+    const body = await request.json();
+    const { name } = body;
+
+    if (!linkId) {
+      return NextResponse.json({ error: 'Link ID is required' }, { status: 400 });
+    }
+
+    if (!name) {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    }
+
+    // Get tenant ID
+    const { data: tenant } = await supabaseAdmin
+      .from('tenants')
+      .select('id')
+      .eq('clerk_user_id', user.id)
+      .single();
+
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
+    }
+
+    // Update payment link name (ensure it belongs to this tenant)
+    const { error } = await supabaseAdmin
+      .from('payment_links')
+      .update({ name })
+      .eq('id', linkId)
+      .eq('tenant_id', tenant.id);
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Error updating payment link:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     const supabase = await createClient();

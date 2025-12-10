@@ -116,28 +116,43 @@ export async function GET(request: NextRequest) {
     const customerEmail = session.customer_details?.email || 'No email provided';
     const customerName = session.customer_details?.name || '';
 
-    // Try to match payment link from session metadata or success_url
+    // Try to match payment link from session
     let paymentLinkId = null;
-    const successUrl = session.success_url || '';
 
-    if (successUrl) {
-      // Extract Stripe payment link URL from success_url
-      const urlMatch = successUrl.match(/https:\/\/buy\.stripe\.com\/[^\?&]+/);
-      if (urlMatch) {
-        const stripeLinkUrl = urlMatch[0];
+    // Check if this session came from a payment link
+    if (session.payment_link) {
+      // Get the Stripe SDK
+      const Stripe = require('stripe');
+      const stripe = new Stripe(tenant.stripe_secret_key, {
+        apiVersion: '2025-11-17.clover',
+      });
+
+      try {
+        // Retrieve the payment link details from Stripe
+        const paymentLink = await stripe.paymentLinks.retrieve(session.payment_link);
+        const paymentLinkUrl = paymentLink.url;
+
+        console.log('Payment Link URL from Stripe:', paymentLinkUrl);
 
         // Find matching payment link in database
         const { data: matchedLink } = await supabaseAdmin
           .from('payment_links')
           .select('id')
           .eq('tenant_id', tenant.id)
-          .eq('stripe_payment_link', stripeLinkUrl)
+          .eq('stripe_payment_link', paymentLinkUrl)
           .single();
 
         if (matchedLink) {
           paymentLinkId = matchedLink.id;
+          console.log('✅ Matched payment link ID:', paymentLinkId);
+        } else {
+          console.log('❌ No matching payment link found in database for URL:', paymentLinkUrl);
         }
+      } catch (err) {
+        console.error('Error retrieving payment link from Stripe:', err);
       }
+    } else {
+      console.log('ℹ️ Session did not come from a payment link (checkout session instead)');
     }
 
     // Log transaction

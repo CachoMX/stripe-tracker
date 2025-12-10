@@ -7,6 +7,8 @@ export default function PaymentLinksPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     stripe_payment_link: '',
@@ -51,7 +53,27 @@ export default function PaymentLinksPage() {
     }
   };
 
-  const handleDelete = async (linkId: string) => {
+  const handleRename = async (linkId: string) => {
+    if (!editName.trim()) return;
+
+    try {
+      const response = await fetch(`/api/payment-links?id=${linkId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editName }),
+      });
+
+      if (response.ok) {
+        await fetchPaymentLinks();
+        setEditing(null);
+        setEditName('');
+      }
+    } catch (error) {
+      console.error('Error renaming payment link:', error);
+    }
+  };
+
+  const handleDelete = async (linkId: string) {
     if (!confirm('Are you sure you want to delete this payment link?')) {
       return;
     }
@@ -162,7 +184,47 @@ export default function PaymentLinksPage() {
               <div key={link.id} className="card p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg mb-1" style={{ color: 'var(--color-text-primary)' }}>{link.name}</h3>
+                    {editing === link.id ? (
+                      <div className="flex items-center gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="form-input flex-1"
+                          placeholder="Enter new name"
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => handleRename(link.id)}
+                          className="btn btn-primary px-3 py-1 text-sm"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditing(null);
+                            setEditName('');
+                          }}
+                          className="btn btn-secondary px-3 py-1 text-sm"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>{link.name}</h3>
+                        <button
+                          onClick={() => {
+                            setEditing(link.id);
+                            setEditName(link.name);
+                          }}
+                          className="text-xs px-2 py-1 btn btn-secondary"
+                          style={{ fontSize: '11px' }}
+                        >
+                          ✏️ Rename
+                        </button>
+                      </div>
+                    )}
                     <a
                       href={link.stripe_payment_link}
                       target="_blank"
