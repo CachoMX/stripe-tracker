@@ -59,14 +59,13 @@ export async function GET(request: NextRequest) {
       tenant = data;
     }
 
-    // If no custom domain match, try to find by subdomain pattern
-    // Format: client-id.yourdomain.com
-    if (!tenant && host) {
-      const subdomain = host.split('.')[0];
+    // If localhost or no custom domain match, get the first tenant (for testing)
+    if (!tenant && (host?.includes('localhost') || host?.includes('vercel.app'))) {
       const { data } = await supabaseAdmin
         .from('tenants')
         .select('*')
-        .eq('id', subdomain)
+        .order('created_at', { ascending: true })
+        .limit(1)
         .single();
 
       tenant = data;
