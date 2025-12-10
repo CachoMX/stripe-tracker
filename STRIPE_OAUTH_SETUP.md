@@ -36,7 +36,7 @@
 ## 📋 Setup Steps Completed
 
 1. ✅ User registered Stripe Connect application
-2. ✅ User obtained Live Client ID: `ca_T2nrXjRmCKzgCkuFB8rNvcZI3hKdORBJ`
+2. ✅ User obtained Live Client ID: `ca_TZnrXjRmCKzgCWufB8rMvcZI3hKdORBJ`
 3. ✅ User enabled OAuth in Stripe dashboard
 4. ✅ User added redirect URIs:
    - Production: `https://www.pingitnow.com/api/stripe/callback`
@@ -70,7 +70,7 @@ COMMENT ON COLUMN tenants.stripe_refresh_token IS 'OAuth refresh token for renew
 ### 2. Add Environment Variable to Vercel
 In your Vercel project settings, add:
 - **Key**: `NEXT_PUBLIC_STRIPE_PLATFORM_CLIENT_ID`
-- **Value**: `ca_T2nrXjRmCKzgCkuFB8rNvcZI3hKdORBJ`
+- **Value**: `ca_TZnrXjRmCKzgCWufB8rMvcZI3hKdORBJ`
 - **Environments**: Production, Preview, Development
 
 ### 3. Deploy to Production
