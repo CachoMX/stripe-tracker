@@ -8,7 +8,7 @@ export default function HomePage() {
       <nav className="border-b" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-secondary)' }}>
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <Link href="/">
               <Image
                 src="/images/ping-wordmark-dark.svg"
                 alt="Ping"
@@ -16,9 +16,12 @@ export default function HomePage() {
                 height={40}
                 className="h-10 w-auto"
               />
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href="/login" className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+            </Link>
+            <div className="flex items-center gap-6">
+              <Link href="/how-it-works" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-secondary)' }}>
+                How It Works
+              </Link>
+              <Link href="/login" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-secondary)' }}>
                 Sign In
               </Link>
               <Link href="/signup" className="btn btn-primary">
