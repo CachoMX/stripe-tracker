@@ -129,6 +129,15 @@ export async function GET(request: NextRequest) {
       metadata: session.metadata,
     });
 
+    // Redirect to add email to URL if not present
+    const url = new URL(request.url);
+    const emailParam = url.searchParams.get('email');
+
+    if (!emailParam && customerEmail !== 'No email provided') {
+      url.searchParams.set('email', customerEmail);
+      return NextResponse.redirect(url.toString());
+    }
+
     // Render thank you page with Hyros script
     return new NextResponse(
       `
