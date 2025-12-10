@@ -6,8 +6,12 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Payment Tracker SaaS - Track Stripe Payments with Hyros",
-  description: "Multi-tenant SaaS for tracking Stripe payments with Hyros integration",
+  title: "Ping - Payment Tracking Precision Refined",
+  description: "Track every Stripe payment with surgical precision. Multi-tenant SaaS platform with Hyros integration, custom domains, and real-time analytics.",
+  icons: {
+    icon: '/images/ping-favicon.svg',
+    apple: '/images/ping-app-icon.svg',
+  },
 };
 
 export default function RootLayout({

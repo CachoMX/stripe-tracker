@@ -689,3 +689,22 @@ textarea::placeholder {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-secondary);
 }
+
+
+/* Quick Action Links */
+.quick-action-link {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.quick-action-link:hover {
+  border-color: var(--color-accent);
+  background-color: var(--color-bg-hover);
+  text-decoration: none;
+}

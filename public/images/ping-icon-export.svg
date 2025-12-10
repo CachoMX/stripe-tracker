@@ -1,0 +1,24 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#50F5AC"/>
+      <stop offset="100%" stop-color="#4F5BD5"/>
+    </linearGradient>
+  </defs>
+  
+  <g transform="translate(256, 256)">
+    <!-- Outer ping wave -->
+    <circle cx="0" cy="0" r="200" fill="none" stroke="url(#pingGrad)" stroke-width="12" opacity="0.25"/>
+    <!-- Middle ping wave -->
+    <circle cx="0" cy="0" r="140" fill="none" stroke="url(#pingGrad)" stroke-width="14" opacity="0.5"/>
+    <!-- Inner ring -->
+    <circle cx="0" cy="0" r="75" fill="none" stroke="#50F5AC" stroke-width="16"/>
+    <!-- Center dot -->
+    <circle cx="0" cy="0" r="30" fill="#50F5AC"/>
+    <!-- Crosshair lines -->
+    <line x1="-245" y1="0" x2="-115" y2="0" stroke="#50F5AC" stroke-width="16" stroke-linecap="round"/>
+    <line x1="115" y1="0" x2="245" y2="0" stroke="#50F5AC" stroke-width="16" stroke-linecap="round"/>
+    <line x1="0" y1="-245" x2="0" y2="-115" stroke="#50F5AC" stroke-width="16" stroke-linecap="round"/>
+    <line x1="0" y1="115" x2="0" y2="245" stroke="#50F5AC" stroke-width="16" stroke-linecap="round"/>
+  </g>
+</svg>

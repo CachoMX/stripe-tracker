@@ -1,105 +1,201 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800">
-      <div className="container mx-auto px-4 py-16">
-        {/* Header */}
-        <nav className="flex justify-between items-center mb-16">
-          <h1 className="text-3xl font-bold text-white">Payment Tracker</h1>
-          <div className="space-x-4">
-            <Link
-              href="/login"
-              className="text-white hover:text-purple-200 transition"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/signup"
-              className="bg-white text-purple-700 px-6 py-2 rounded-lg font-semibold hover:bg-purple-50 transition"
-            >
-              Get Started
-            </Link>
-          </div>
-        </nav>
-
-        {/* Hero Section */}
-        <div className="text-center text-white max-w-4xl mx-auto">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6">
-            Track Every Stripe Payment
-            <span className="block text-purple-300">with Hyros Integration</span>
-          </h2>
-          <p className="text-xl md:text-2xl mb-8 text-purple-100">
-            The multi-tenant SaaS platform that captures customer emails from Stripe and sends them to Hyros automatically.
-          </p>
-
-          <div className="flex gap-4 justify-center mb-16">
-            <Link
-              href="/signup"
-              className="bg-white text-purple-700 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-purple-50 transition shadow-lg"
-            >
-              Start Free Trial
-            </Link>
-            <Link
-              href="#features"
-              className="bg-purple-500 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-purple-400 transition"
-            >
-              Learn More
-            </Link>
-          </div>
-
-          {/* Features Grid */}
-          <div id="features" className="grid md:grid-cols-3 gap-8 mt-20">
-            <div className="bg-white/10 backdrop-blur-lg p-8 rounded-xl">
-              <div className="text-4xl mb-4">🎯</div>
-              <h3 className="text-xl font-semibold mb-3">Hyros Tracking</h3>
-              <p className="text-purple-100">
-                Automatically inject your Hyros tracking script on thank you pages
-              </p>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+      {/* Navigation */}
+      <nav className="border-b" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-secondary)' }}>
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/images/ping-app-icon.svg"
+                alt="Ping"
+                width={40}
+                height={40}
+                className="w-10 h-10"
+              />
+              <Image
+                src="/images/ping-wordmark-dark.svg"
+                alt="Ping"
+                width={100}
+                height={30}
+                className="h-8 w-auto hidden dark:block"
+              />
+              <Image
+                src="/images/ping-wordmark-light.svg"
+                alt="Ping"
+                width={100}
+                height={30}
+                className="h-8 w-auto block dark:hidden"
+              />
             </div>
-
-            <div className="bg-white/10 backdrop-blur-lg p-8 rounded-xl">
-              <div className="text-4xl mb-4">🔗</div>
-              <h3 className="text-xl font-semibold mb-3">Custom Domains</h3>
-              <p className="text-purple-100">
-                Use your own domain for thank you pages (ty.yourdomain.com)
-              </p>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-lg p-8 rounded-xl">
-              <div className="text-4xl mb-4">💳</div>
-              <h3 className="text-xl font-semibold mb-3">Stripe Integration</h3>
-              <p className="text-purple-100">
-                Create payment links and checkout sessions directly from your dashboard
-              </p>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-lg p-8 rounded-xl">
-              <div className="text-4xl mb-4">📊</div>
-              <h3 className="text-xl font-semibold mb-3">Analytics</h3>
-              <p className="text-purple-100">
-                Track all your transactions and customer data in one place
-              </p>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-lg p-8 rounded-xl">
-              <div className="text-4xl mb-4">⚡</div>
-              <h3 className="text-xl font-semibold mb-3">Instant Setup</h3>
-              <p className="text-purple-100">
-                Get started in minutes with our simple configuration
-              </p>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-lg p-8 rounded-xl">
-              <div className="text-4xl mb-4">🔒</div>
-              <h3 className="text-xl font-semibold mb-3">Secure</h3>
-              <p className="text-purple-100">
-                Your Stripe keys are encrypted and stored securely
-              </p>
+            <div className="flex items-center gap-4">
+              <Link href="/login" className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                Sign In
+              </Link>
+              <Link href="/signup" className="btn btn-primary">
+                Get Started
+              </Link>
             </div>
           </div>
         </div>
-      </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-6 py-20 md:py-32">
+        <div className="text-center max-w-4xl mx-auto">
+          <div className="mb-6 flex justify-center">
+            <Image
+              src="/images/ping-precision-refined.svg"
+              alt="Ping - Precision Refined"
+              width={120}
+              height={120}
+              className="w-24 h-24 md:w-32 md:h-32"
+            />
+          </div>
+
+          <h1 className="text-4xl md:text-6xl font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+            Payment Tracking
+            <br />
+            <span style={{ color: 'var(--color-accent)' }}>Precision Refined</span>
+          </h1>
+
+          <p className="text-lg md:text-xl mb-8" style={{ color: 'var(--color-text-secondary)' }}>
+            Track every Stripe payment with surgical precision. Multi-tenant SaaS platform
+            with Hyros integration, custom domains, and real-time analytics.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/signup" className="btn btn-primary btn-lg">
+              Start Tracking Free
+            </Link>
+            <Link href="#features" className="btn btn-secondary btn-lg">
+              See Features
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="max-w-7xl mx-auto px-6 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>
+            Everything You Need
+          </h2>
+          <p className="text-lg" style={{ color: 'var(--color-text-secondary)' }}>
+            Powerful features for payment tracking and analytics
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="card">
+            <div className="text-4xl mb-4">🎯</div>
+            <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+              Hyros Integration
+            </h3>
+            <p className="text-small">
+              Seamlessly integrate your Hyros tracking script. Capture every conversion with precision.
+            </p>
+          </div>
+
+          <div className="card">
+            <div className="text-4xl mb-4">🌐</div>
+            <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+              Custom Domains
+            </h3>
+            <p className="text-small">
+              Use your own domain for thank you pages. Automatic SSL and DNS management.
+            </p>
+          </div>
+
+          <div className="card">
+            <div className="text-4xl mb-4">💳</div>
+            <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+              Stripe Native
+            </h3>
+            <p className="text-small">
+              Works with Payment Links and Checkout Sessions. Track all your Stripe payments.
+            </p>
+          </div>
+
+          <div className="card">
+            <div className="text-4xl mb-4">📊</div>
+            <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+              Real-time Analytics
+            </h3>
+            <p className="text-small">
+              Live dashboard with revenue tracking, transaction counts, and detailed history.
+            </p>
+          </div>
+
+          <div className="card">
+            <div className="text-4xl mb-4">🔄</div>
+            <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+              Auto Redirect
+            </h3>
+            <p className="text-small">
+              Configurable post-payment redirects. Send customers to your next funnel step.
+            </p>
+          </div>
+
+          <div className="card">
+            <div className="text-4xl mb-4">🔐</div>
+            <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+              Multi-Tenant
+            </h3>
+            <p className="text-small">
+              Secure isolation. Each client gets their own dashboard and configuration.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="card text-center" style={{ background: 'linear-gradient(135deg, var(--color-bg-elevated) 0%, var(--color-bg-card) 100%)' }}>
+          <div className="max-w-2xl mx-auto py-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>
+              Ready to Track With Precision?
+            </h2>
+            <p className="text-lg mb-8" style={{ color: 'var(--color-text-secondary)' }}>
+              Join hundreds of businesses tracking their Stripe payments with Ping.
+            </p>
+            <Link href="/signup" className="btn btn-primary btn-lg">
+              Get Started Now
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-secondary)' }}>
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/images/ping-app-icon.svg"
+                alt="Ping"
+                width={32}
+                height={32}
+                className="w-8 h-8"
+              />
+              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                © 2024 Ping. Payment tracking precision refined.
+              </span>
+            </div>
+            <div className="flex gap-6">
+              <Link href="/login" className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                Sign In
+              </Link>
+              <Link href="/signup" className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                Sign Up
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

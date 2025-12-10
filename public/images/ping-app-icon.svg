@@ -1,0 +1,31 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="appGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#50F5AC"/>
+      <stop offset="100%" stop-color="#4F5BD5"/>
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1d2e"/>
+      <stop offset="100%" stop-color="#171A2A"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background with rounded corners for app icon -->
+  <rect width="512" height="512" rx="96" fill="url(#bgGrad)"/>
+  
+  <g transform="translate(256, 256)">
+    <!-- Outer ping wave -->
+    <circle cx="0" cy="0" r="170" fill="none" stroke="url(#appGrad)" stroke-width="10" opacity="0.2"/>
+    <!-- Middle ping wave -->
+    <circle cx="0" cy="0" r="120" fill="none" stroke="url(#appGrad)" stroke-width="12" opacity="0.45"/>
+    <!-- Inner ring -->
+    <circle cx="0" cy="0" r="65" fill="none" stroke="#50F5AC" stroke-width="14"/>
+    <!-- Center dot -->
+    <circle cx="0" cy="0" r="26" fill="#50F5AC"/>
+    <!-- Crosshair lines -->
+    <line x1="-205" y1="0" x2="-100" y2="0" stroke="#50F5AC" stroke-width="14" stroke-linecap="round"/>
+    <line x1="100" y1="0" x2="205" y2="0" stroke="#50F5AC" stroke-width="14" stroke-linecap="round"/>
+    <line x1="0" y1="-205" x2="0" y2="-100" stroke="#50F5AC" stroke-width="14" stroke-linecap="round"/>
+    <line x1="0" y1="100" x2="0" y2="205" stroke="#50F5AC" stroke-width="14" stroke-linecap="round"/>
+  </g>
+</svg>

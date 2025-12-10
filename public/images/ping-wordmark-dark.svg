@@ -1,0 +1,23 @@
+<svg viewBox="0 0 400 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#50F5AC"/>
+      <stop offset="100%" stop-color="#4F5BD5"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Icon -->
+  <g transform="translate(45, 40)">
+    <circle cx="0" cy="0" r="28" fill="none" stroke="url(#wGrad)" stroke-width="1.5" opacity="0.25"/>
+    <circle cx="0" cy="0" r="19" fill="none" stroke="url(#wGrad)" stroke-width="2" opacity="0.5"/>
+    <circle cx="0" cy="0" r="10" fill="none" stroke="#50F5AC" stroke-width="2"/>
+    <circle cx="0" cy="0" r="4" fill="#50F5AC"/>
+    <line x1="-36" y1="0" x2="-16" y2="0" stroke="#50F5AC" stroke-width="2" stroke-linecap="round"/>
+    <line x1="16" y1="0" x2="36" y2="0" stroke="#50F5AC" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="-36" x2="0" y2="-16" stroke="#50F5AC" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="16" x2="0" y2="36" stroke="#50F5AC" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Wordmark -->
+  <text x="105" y="50" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="32" font-weight="600" fill="#EDEFF8" letter-spacing="-0.5">ping it<tspan fill="#50F5AC"> now</tspan></text>
+</svg>

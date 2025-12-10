@@ -109,22 +109,7 @@ export default async function DashboardPage() {
       <div className="card">
         <h2 className="text-h2">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a
-            href="/dashboard/settings"
-            className="flex items-center p-4 rounded-lg transition"
-            style={{
-              border: '2px solid var(--color-border)',
-              color: 'var(--color-text-primary)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-accent)';
-              e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
+          <a href="/dashboard/settings" className="quick-action-link">
             <div className="text-3xl mr-4">⚙️</div>
             <div>
               <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>Configure Settings</h3>
@@ -132,22 +117,7 @@ export default async function DashboardPage() {
             </div>
           </a>
 
-          <a
-            href="/dashboard/payment-links"
-            className="flex items-center p-4 rounded-lg transition"
-            style={{
-              border: '2px solid var(--color-border)',
-              color: 'var(--color-text-primary)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-accent)';
-              e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
+          <a href="/dashboard/payment-links" className="quick-action-link">
             <div className="text-3xl mr-4">🔗</div>
             <div>
               <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>Create Payment Link</h3>
@@ -155,22 +125,7 @@ export default async function DashboardPage() {
             </div>
           </a>
 
-          <a
-            href="/dashboard/domains"
-            className="flex items-center p-4 rounded-lg transition"
-            style={{
-              border: '2px solid var(--color-border)',
-              color: 'var(--color-text-primary)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-accent)';
-              e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
+          <a href="/dashboard/domains" className="quick-action-link">
             <div className="text-3xl mr-4">🌐</div>
             <div>
               <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>Setup Custom Domain</h3>
@@ -178,22 +133,7 @@ export default async function DashboardPage() {
             </div>
           </a>
 
-          <a
-            href="/dashboard/transactions"
-            className="flex items-center p-4 rounded-lg transition"
-            style={{
-              border: '2px solid var(--color-border)',
-              color: 'var(--color-text-primary)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-accent)';
-              e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
+          <a href="/dashboard/transactions" className="quick-action-link">
             <div className="text-3xl mr-4">📊</div>
             <div>
               <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>View Transactions</h3>
