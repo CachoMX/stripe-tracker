@@ -45,7 +45,9 @@ export default function TransactionsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">$0.00</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">
+                ${(stats.totalRevenue / 100).toFixed(2)}
+              </p>
             </div>
             <div className="text-4xl">💰</div>
           </div>
