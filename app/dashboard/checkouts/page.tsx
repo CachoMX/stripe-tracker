@@ -2,6 +2,70 @@
 
 import { useState, useEffect } from 'react';
 
+function CheckoutCard({ session }: { session: any }) {
+  const [testLoading, setTestLoading] = useState(false);
+  const [testUrl, setTestUrl] = useState('');
+
+  const handleTestCheckout = async () => {
+    setTestLoading(true);
+    try {
+      const response = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ checkoutSessionId: session.id }),
+      });
+
+      const data = await response.json();
+      if (data.url) {
+        setTestUrl(data.url);
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error creating test checkout:', error);
+    } finally {
+      setTestLoading(false);
+    }
+  };
+
+  return (
+    <div className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+      <div className="flex justify-between items-start">
+        <div>
+          <h3 className="font-semibold text-lg">{session.name}</h3>
+          <p className="text-sm text-gray-600">{session.product_name}</p>
+        </div>
+        <div className="text-right">
+          <p className="font-semibold text-lg">
+            ${(session.amount / 100).toFixed(2)} {session.currency.toUpperCase()}
+          </p>
+        </div>
+      </div>
+      <p className="text-xs text-gray-500 mt-2">
+        Created: {new Date(session.created_at).toLocaleDateString()}
+      </p>
+      <div className="mt-4 flex gap-2">
+        <button
+          onClick={handleTestCheckout}
+          disabled={testLoading}
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 text-sm font-medium"
+        >
+          {testLoading ? 'Creating...' : '🧪 Test Checkout'}
+        </button>
+        {testUrl && (
+          <a
+            href={testUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
+          >
+            Open Link
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function CheckoutsPage() {
   const [sessions, setSessions] = useState([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -168,22 +232,7 @@ export default function CheckoutsPage() {
         ) : (
           <div className="space-y-4">
             {sessions.map((session: any) => (
-              <div key={session.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold text-lg">{session.name}</h3>
-                    <p className="text-sm text-gray-600">{session.product_name}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-lg">
-                      ${(session.amount / 100).toFixed(2)} {session.currency.toUpperCase()}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Created: {new Date(session.created_at).toLocaleDateString()}
-                </p>
-              </div>
+              <CheckoutCard key={session.id} session={session} />
             ))}
           </div>
         )}
