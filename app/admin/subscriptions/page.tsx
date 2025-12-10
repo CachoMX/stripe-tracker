@@ -210,7 +210,7 @@ function getStatusBadge(sub: Subscription) {
 function StatCard({ title, value, icon }: { title: string; value: string | number; icon: string }) {
   return (
     <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-      <div className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl mb-4" style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}>
+      <div className="text-3xl mb-4">
         {icon}
       </div>
       <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>{title}</p>

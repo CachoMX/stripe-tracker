@@ -190,7 +190,7 @@ function StatCard({
   return (
     <div className="rounded-lg shadow hover:shadow-lg transition p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
       <div className="flex items-center justify-between mb-4">
-        <div className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl" style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}>
+        <div className="text-3xl">
           {icon}
         </div>
         {trend && (
