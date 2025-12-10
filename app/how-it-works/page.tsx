@@ -53,28 +53,34 @@ export default function HowItWorksPage() {
                 Connect Your Stripe Account
               </h2>
               <p className="text-lg mb-6" style={{ color: 'var(--color-text-secondary)' }}>
-                Simply add your Stripe API key in the dashboard settings. Ping securely connects to your Stripe account to track payments in real-time.
+                Click "Connect with Stripe" and authorize Ping in seconds. No API keys to copy, no manual setup - just a secure OAuth connection.
               </p>
               <ul className="space-y-3" style={{ color: 'var(--color-text-secondary)' }}>
                 <li className="flex items-start gap-3">
                   <span style={{ color: 'var(--color-accent)' }}>✓</span>
-                  <span>Secure API key encryption</span>
+                  <span>One-click OAuth authentication</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span style={{ color: 'var(--color-accent)' }}>✓</span>
-                  <span>Read-only access to payment data</span>
+                  <span>Secure, industry-standard connection</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span style={{ color: 'var(--color-accent)' }}>✓</span>
-                  <span>Multi-tenant data isolation</span>
+                  <span>Revocable access anytime</span>
                 </li>
               </ul>
             </div>
             <div className="order-1 md:order-2">
               <div className="card p-8 text-center">
                 <div className="text-6xl mb-4">🔐</div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>Stripe API Key</h3>
-                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Securely stored and encrypted</p>
+                <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>Stripe Connect</h3>
+                <p className="text-sm mb-4" style={{ color: 'var(--color-text-secondary)' }}>Secure OAuth connection</p>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded" style={{ backgroundColor: '#635BFF', color: 'white' }}>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/>
+                  </svg>
+                  <span className="text-sm font-semibold">Connect with Stripe</span>
+                </div>
               </div>
             </div>
           </div>
