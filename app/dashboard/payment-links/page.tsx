@@ -11,7 +11,10 @@ export default function PaymentLinksPage() {
   const [editName, setEditName] = useState('');
   const [formData, setFormData] = useState({
     name: '',
-    stripe_payment_link: '',
+    product_name: '',
+    amount: '',
+    currency: 'usd',
+    description: '',
   });
 
   useEffect(() => {
@@ -44,7 +47,10 @@ export default function PaymentLinksPage() {
       if (response.ok) {
         await fetchPaymentLinks();
         setShowCreateForm(false);
-        setFormData({ name: '', stripe_payment_link: '' });
+        setFormData({ name: '', product_name: '', amount: '', currency: 'usd', description: '' });
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to create payment link');
       }
     } catch (error) {
       console.error('Error creating payment link:', error);
@@ -128,18 +134,71 @@ export default function PaymentLinksPage() {
                   className="form-input"
                   placeholder="e.g., Premium Plan"
                 />
+                <p className="text-xs text-muted mt-1">
+                  Internal name for tracking (not shown to customers)
+                </p>
               </div>
+
               <div>
                 <label className="form-label">
-                  Stripe Payment Link URL
+                  Product Name
                 </label>
                 <input
-                  type="url"
-                  value={formData.stripe_payment_link}
-                  onChange={(e) => setFormData({ ...formData, stripe_payment_link: e.target.value })}
+                  type="text"
+                  value={formData.product_name}
+                  onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
                   required
                   className="form-input"
-                  placeholder="https://buy.stripe.com/..."
+                  placeholder="e.g., Premium Subscription"
+                />
+                <p className="text-xs text-muted mt-1">
+                  Name shown to customers on payment page
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="form-label">
+                    Price
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                    required
+                    min="0"
+                    step="0.01"
+                    className="form-input"
+                    placeholder="99.00"
+                  />
+                </div>
+                <div>
+                  <label className="form-label">
+                    Currency
+                  </label>
+                  <select
+                    value={formData.currency}
+                    onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                    className="form-input"
+                  >
+                    <option value="usd">USD ($)</option>
+                    <option value="eur">EUR (€)</option>
+                    <option value="gbp">GBP (£)</option>
+                    <option value="mxn">MXN ($)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="form-label">
+                  Description (optional)
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="form-input"
+                  rows={3}
+                  placeholder="Product description shown to customers..."
                 />
               </div>
               <div className="flex gap-4 mt-6">

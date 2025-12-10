@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import Stripe from 'stripe';
 
 export async function GET(request: NextRequest) {
   try {
@@ -70,11 +71,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, stripe_payment_link } = body;
+    const { name, product_name, amount, currency = 'usd', description } = body;
 
-    if (!name || !stripe_payment_link) {
+    if (!name || !product_name || !amount) {
       return NextResponse.json(
-        { error: 'Name and stripe_payment_link are required' },
+        { error: 'Name, product_name, and amount are required' },
         { status: 400 }
       );
     }
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
     // Get or create tenant
     let { data: tenant } = await supabaseAdmin
       .from('tenants')
-      .select('id')
+      .select('id, stripe_secret_key')
       .eq('clerk_user_id', user.id)
       .single();
 
@@ -93,20 +94,59 @@ export async function POST(request: NextRequest) {
           clerk_user_id: user.id,
           email: user.email,
         })
-        .select('id')
+        .select('id, stripe_secret_key')
         .single();
 
       if (tenantError) throw tenantError;
       tenant = newTenant;
     }
 
-    // Create payment link
+    // Check if Stripe is connected
+    if (!tenant.stripe_secret_key) {
+      return NextResponse.json(
+        { error: 'Please connect your Stripe account first in Settings' },
+        { status: 400 }
+      );
+    }
+
+    // Initialize Stripe with tenant's OAuth access token
+    const stripe = new Stripe(tenant.stripe_secret_key, {
+      apiVersion: '2025-11-17.clover',
+    });
+
+    // Convert amount to cents
+    const amountInCents = Math.round(parseFloat(amount) * 100);
+
+    // Create product in Stripe
+    const product = await stripe.products.create({
+      name: product_name,
+      description: description || undefined,
+    });
+
+    // Create price in Stripe
+    const price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: amountInCents,
+      currency: currency,
+    });
+
+    // Create payment link in Stripe
+    const stripePaymentLink = await stripe.paymentLinks.create({
+      line_items: [
+        {
+          price: price.id,
+          quantity: 1,
+        },
+      ],
+    });
+
+    // Save payment link to database
     const { data: paymentLink, error } = await supabaseAdmin
       .from('payment_links')
       .insert({
         tenant_id: tenant.id,
         name,
-        stripe_payment_link,
+        stripe_payment_link: stripePaymentLink.url,
       })
       .select()
       .single();
