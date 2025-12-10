@@ -200,7 +200,7 @@ export default function AdminSubscriptionsPage() {
 function getStatusBadge(sub: Subscription) {
   if (sub.subscription_status === 'active') {
     return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(80, 245, 172, 0.2)', color: 'var(--color-accent)' }}>Active</span>;
-  } else if (!sub.subscription_status && sub.trial_ends_at) {
+  } else if (sub.subscription_status === 'trialing' || sub.subscription_status === 'trial' || (!sub.subscription_status && sub.trial_ends_at)) {
     return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6' }}>Trial</span>;
   } else {
     return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-secondary)' }}>Inactive</span>;

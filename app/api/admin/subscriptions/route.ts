@@ -21,8 +21,15 @@ export async function GET(request: NextRequest) {
 
     // Calculate stats
     const active = subscriptions?.filter((s) => s.subscription_status === 'active').length || 0;
-    const trial = subscriptions?.filter((s) => !s.subscription_status && s.trial_ends_at).length || 0;
-    const inactive = subscriptions?.filter((s) => !s.subscription_status && !s.trial_ends_at).length || 0;
+    const trial = subscriptions?.filter((s) =>
+      s.subscription_status === 'trialing' ||
+      s.subscription_status === 'trial' ||
+      (!s.subscription_status && s.trial_ends_at)
+    ).length || 0;
+    const inactive = subscriptions?.filter((s) =>
+      !s.subscription_status ||
+      (s.subscription_status !== 'active' && s.subscription_status !== 'trialing' && s.subscription_status !== 'trial')
+    ).length - trial || 0;
 
     // Count by plan (using your actual plan names)
     const starter = subscriptions?.filter((s) => s.subscription_plan && (s.subscription_plan.toLowerCase().includes('starter') || s.subscription_plan.toLowerCase().includes('basic'))).length || 0;
