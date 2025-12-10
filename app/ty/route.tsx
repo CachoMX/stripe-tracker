@@ -116,6 +116,9 @@ export async function GET(request: NextRequest) {
     const customerEmail = session.customer_details?.email || 'No email provided';
     const customerName = session.customer_details?.name || '';
 
+    // Check if this is a subscription payment
+    const isSubscription = session.metadata?.subscription_payment === 'true' || session.mode === 'subscription';
+
     // Try to match payment link from session
     let paymentLinkId = null;
 
@@ -289,34 +292,34 @@ export async function GET(request: NextRequest) {
       <body>
         <div class="container">
           <div class="success-icon">✅</div>
-          <h1>Thank You For Your Purchase!</h1>
-          <p class="message">Your payment has been processed successfully.</p>
+          <h1>${isSubscription ? '¡Bienvenido a Ping!' : 'Thank You For Your Purchase!'}</h1>
+          <p class="message">${isSubscription ? 'Tu suscripción ha sido activada exitosamente.' : 'Your payment has been processed successfully.'}</p>
 
           <div class="email">
             <span id="customer-email">${customerEmail}</span>
           </div>
 
           <p class="message" style="font-size: 1rem; color: #6b7280;">
-            You will receive a confirmation email shortly.
+            ${isSubscription ? 'Recibirás un email de confirmación en breve.' : 'You will receive a confirmation email shortly.'}
           </p>
 
           ${
-            redirectEnabled && redirectUrl
+            isSubscription || (redirectEnabled && redirectUrl)
               ? `
           <div class="countdown" id="countdown">
-            Redirecting in <span id="seconds">${redirectSeconds}</span>...
+            Redirecting in <span id="seconds">${isSubscription ? 5 : redirectSeconds}</span>...
           </div>
-          <p class="redirect-message">You will be automatically redirected to the next step.</p>
+          <p class="redirect-message">${isSubscription ? 'Serás redirigido al dashboard en breve.' : 'You will be automatically redirected to the next step.'}</p>
           `
               : ''
           }
         </div>
 
         ${
-          redirectEnabled && redirectUrl
+          isSubscription || (redirectEnabled && redirectUrl)
             ? `
         <script>
-          let seconds = ${redirectSeconds};
+          let seconds = ${isSubscription ? 5 : redirectSeconds};
           const countdownElement = document.getElementById('seconds');
 
           const interval = setInterval(() => {
@@ -327,7 +330,7 @@ export async function GET(request: NextRequest) {
 
             if (seconds <= 0) {
               clearInterval(interval);
-              window.location.href = '${redirectUrl}';
+              window.location.href = '${isSubscription ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard` : redirectUrl}';
             }
           }, 1000);
         </script>

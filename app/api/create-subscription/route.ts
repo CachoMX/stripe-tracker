@@ -83,12 +83,13 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?subscription=success`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/ty?session_id={CHECKOUT_SESSION_ID}&email={CUSTOMER_EMAIL}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?subscription=canceled`,
       metadata: {
         tenant_id: tenant.id,
         user_id: user.id,
         plan: plan,
+        subscription_payment: 'true', // Flag to identify this is a subscription
       },
     });
 
