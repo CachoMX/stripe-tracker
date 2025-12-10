@@ -1,6 +1,7 @@
 import { getUser } from '@/lib/supabase/server-client';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import LogoutButton from '@/components/LogoutButton';
 import ThemeToggle from '@/app/components/ThemeToggle';
 
@@ -20,9 +21,31 @@ export default async function DashboardLayout({
       {/* Sidebar */}
       <aside className="sidebar fixed left-0 top-0 h-full w-64 p-6">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-accent)' }}>
-            Payment Tracker
-          </h1>
+          <Link href="/" className="flex items-center gap-2 mb-2">
+            <Image
+              src="/images/ping-app-icon.svg"
+              alt="Ping"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
+            <Image
+              src="/images/ping-wordmark-light.svg"
+              alt="Ping"
+              width={80}
+              height={24}
+              className="h-6 w-auto"
+              style={{ display: 'var(--wordmark-light-display, block)' }}
+            />
+            <Image
+              src="/images/ping-wordmark-dark.svg"
+              alt="Ping"
+              width={80}
+              height={24}
+              className="h-6 w-auto"
+              style={{ display: 'var(--wordmark-dark-display, none)' }}
+            />
+          </Link>
           <p className="text-small mt-1">{user.email}</p>
         </div>
 

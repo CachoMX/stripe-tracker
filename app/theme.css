@@ -708,3 +708,15 @@ textarea::placeholder {
   background-color: var(--color-bg-hover);
   text-decoration: none;
 }
+
+/* Wordmark display based on theme */
+:root {
+  --wordmark-light-display: block;
+  --wordmark-dark-display: none;
+}
+
+[data-theme="light"] {
+  --wordmark-light-display: none;
+  --wordmark-dark-display: block;
+}
+

@@ -17,18 +17,20 @@ export default function HomePage() {
                 className="w-10 h-10"
               />
               <Image
-                src="/images/ping-wordmark-dark.svg"
-                alt="Ping"
-                width={100}
-                height={30}
-                className="h-8 w-auto hidden dark:block"
-              />
-              <Image
                 src="/images/ping-wordmark-light.svg"
                 alt="Ping"
                 width={100}
                 height={30}
-                className="h-8 w-auto block dark:hidden"
+                className="h-8 w-auto"
+                style={{ display: 'var(--wordmark-light-display, block)' }}
+              />
+              <Image
+                src="/images/ping-wordmark-dark.svg"
+                alt="Ping"
+                width={100}
+                height={30}
+                className="h-8 w-auto"
+                style={{ display: 'var(--wordmark-dark-display, none)' }}
               />
             </div>
             <div className="flex items-center gap-4">
@@ -182,7 +184,7 @@ export default function HomePage() {
                 className="w-8 h-8"
               />
               <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                © 2024 Ping. Payment tracking precision refined.
+                © 2025 Ping. Payment tracking precision refined.
               </span>
             </div>
             <div className="flex gap-6">
