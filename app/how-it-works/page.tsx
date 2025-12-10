@@ -17,8 +17,14 @@ export default function HowItWorksPage() {
                 className="h-10 w-auto"
               />
             </Link>
-            <div className="flex items-center gap-4">
-              <Link href="/login" className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+            <div className="flex items-center gap-6">
+              <Link href="/how-it-works" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-primary)' }}>
+                How It Works
+              </Link>
+              <Link href="/pricing" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-secondary)' }}>
+                Pricing
+              </Link>
+              <Link href="/login" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-secondary)' }}>
                 Sign In
               </Link>
               <Link href="/signup" className="btn btn-primary">
