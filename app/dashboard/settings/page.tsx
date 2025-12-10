@@ -1,17 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function SettingsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [stripeConnected, setStripeConnected] = useState(false);
+  const [stripeAccountId, setStripeAccountId] = useState('');
 
   const [formData, setFormData] = useState({
-    stripe_secret_key: '',
-    stripe_publishable_key: '',
     hyros_tracking_script: '',
     redirect_enabled: false,
     redirect_seconds: 5,
@@ -20,7 +21,18 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetchTenant();
-  }, []);
+
+    // Check for OAuth callback messages
+    const error = searchParams.get('error');
+    const success = searchParams.get('success');
+
+    if (error) {
+      setMessage({ type: 'error', text: error });
+    } else if (success) {
+      setMessage({ type: 'success', text: success });
+      fetchTenant(); // Refresh to show connected state
+    }
+  }, [searchParams]);
 
   const fetchTenant = async () => {
     try {
@@ -28,9 +40,9 @@ export default function SettingsPage() {
       const data = await res.json();
 
       if (data.tenant) {
+        setStripeConnected(!!data.tenant.stripe_account_id);
+        setStripeAccountId(data.tenant.stripe_account_id || '');
         setFormData({
-          stripe_secret_key: data.tenant.stripe_secret_key || '',
-          stripe_publishable_key: data.tenant.stripe_publishable_key || '',
           hyros_tracking_script: data.tenant.hyros_tracking_script || '',
           redirect_enabled: data.tenant.redirect_enabled || false,
           redirect_seconds: data.tenant.redirect_seconds || 5,
@@ -41,6 +53,42 @@ export default function SettingsPage() {
       console.error('Error fetching tenant:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStripeConnect = () => {
+    const clientId = process.env.NEXT_PUBLIC_STRIPE_PLATFORM_CLIENT_ID || 'ca_T2nrXjRmCKzgCkuFB8rNvcZI3hKdORBJ';
+    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/stripe/callback`;
+    const stripeOAuthUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=read_write&redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+    window.location.href = stripeOAuthUrl;
+  };
+
+  const handleStripeDisconnect = async () => {
+    if (!confirm('Are you sure you want to disconnect your Stripe account?')) {
+      return;
+    }
+
+    setSaving(true);
+    setMessage(null);
+
+    try {
+      const res = await fetch('/api/stripe/disconnect', {
+        method: 'POST',
+      });
+
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'Stripe account disconnected successfully!' });
+        setStripeConnected(false);
+        setStripeAccountId('');
+      } else {
+        const data = await res.json();
+        setMessage({ type: 'error', text: data.error || 'Failed to disconnect Stripe' });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'An error occurred while disconnecting' });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -60,7 +108,6 @@ export default function SettingsPage() {
 
       if (res.ok) {
         setMessage({ type: 'success', text: 'Settings saved successfully!' });
-        setTimeout(() => router.push('/dashboard'), 1500);
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to save settings' });
       }
@@ -92,67 +139,67 @@ export default function SettingsPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         {/* Stripe Configuration */}
         <div className="card">
           <h2 className="text-h2">
             💳 Stripe Configuration
           </h2>
 
-          <div className="space-y-4">
-            <div>
-              <label className="form-label">
-                Secret Key *
-              </label>
-              <input
-                type="password"
-                value={formData.stripe_secret_key}
-                onChange={(e) =>
-                  setFormData({ ...formData, stripe_secret_key: e.target.value })
-                }
-                placeholder="sk_test_..."
-                className="form-input"
-                required
-              />
-              <p className="text-xs text-muted mt-1">
-                Your Stripe secret key (starts with sk_test_ or sk_live_)
-              </p>
+          {stripeConnected ? (
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-success)' }}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold" style={{ color: 'var(--color-success)' }}>
+                      ✓ Stripe Connected
+                    </p>
+                    <p className="text-sm text-muted mt-1">
+                      Account ID: {stripeAccountId}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleStripeDisconnect}
+                    disabled={saving}
+                    className="px-4 py-2 btn btn-secondary text-sm"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              </div>
+              <div className="p-3 alert alert-info" style={{ marginBottom: 0 }}>
+                <p className="text-sm">
+                  Your Stripe account is securely connected via OAuth. You can now create payment links and track transactions.
+                </p>
+              </div>
             </div>
-
-            <div>
-              <label className="form-label">
-                Publishable Key *
-              </label>
-              <input
-                type="text"
-                value={formData.stripe_publishable_key}
-                onChange={(e) =>
-                  setFormData({ ...formData, stripe_publishable_key: e.target.value })
-                }
-                placeholder="pk_test_..."
-                className="form-input"
-                required
-              />
-              <p className="text-xs text-muted mt-1">
-                Your Stripe publishable key (starts with pk_test_ or pk_live_)
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-secondary">
+                Connect your Stripe account securely to start accepting payments and tracking transactions.
               </p>
-            </div>
-          </div>
-
-          <div className="mt-4 p-3 alert alert-info" style={{ marginBottom: 0 }}>
-            <p className="text-sm">
-              <strong>Where to find:</strong> Go to{' '}
-              <a
-                href="https://dashboard.stripe.com/test/apikeys"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
+              <button
+                type="button"
+                onClick={handleStripeConnect}
+                className="px-6 py-3 btn btn-primary flex items-center gap-2"
+                style={{ backgroundColor: '#635BFF', borderColor: '#635BFF' }}
               >
-                Stripe Dashboard → API Keys
-              </a>
-            </p>
-          </div>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/>
+                </svg>
+                Connect with Stripe
+              </button>
+              <div className="p-3 alert alert-info" style={{ marginBottom: 0 }}>
+                <p className="text-sm">
+                  <strong>Secure OAuth Connection:</strong> You'll be redirected to Stripe to authorize access. We never see or store your Stripe password.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
 
         {/* Hyros Configuration */}
         <div className="card">
@@ -286,6 +333,7 @@ head.appendChild(script);
           </button>
         </div>
       </form>
+      </div>
     </div>
   );
 }
