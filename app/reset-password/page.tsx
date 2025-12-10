@@ -6,21 +6,27 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase/client';
 
-function SignupContent() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Get redirect params from URL
-  const planFromUrl = searchParams.get('plan');
-  const redirectTo = searchParams.get('redirect');
+  // Check if user has valid session from email link
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setError('Invalid or expired reset link. Please request a new one.');
+      }
+    };
+    checkSession();
+  }, []);
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -38,43 +44,20 @@ function SignupContent() {
     }
 
     try {
-      // IMPORTANT: Sign out any existing session first
-      await supabase.auth.signOut();
-
-      // Now create the new account
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-        },
+      const { error } = await supabase.auth.updateUser({
+        password: password,
       });
 
       if (error) throw error;
 
-      // Check if email confirmation is required
-      if (data.user && !data.session) {
-        setError('Please check your email to confirm your account before signing in.');
-        setLoading(false);
-        return;
-      }
-
       setSuccess(true);
 
-      // Auto login after signup (session is already created by signUp)
-      if (data.user && data.session) {
-        setTimeout(() => {
-          // If there's a plan selected, redirect to pricing to complete checkout
-          if (planFromUrl && redirectTo === 'pricing') {
-            router.push(`/pricing?plan=${planFromUrl}&autoCheckout=true`);
-          } else {
-            router.push('/dashboard');
-          }
-          router.refresh();
-        }, 2000);
-      }
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        router.push('/login?reset=success');
+      }, 2000);
     } catch (error: any) {
-      setError(error.message || 'An error occurred during signup');
+      setError(error.message || 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -96,14 +79,14 @@ function SignupContent() {
           </Link>
         </div>
 
-        {/* Signup Card */}
+        {/* Reset Password Card */}
         <div className="card">
           <div className="text-center mb-6">
             <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
-              Get Started
+              Set New Password
             </h1>
             <p className="text-small">
-              Create your Ping account
+              Enter your new password below
             </p>
           </div>
 
@@ -115,29 +98,14 @@ function SignupContent() {
 
           {success && (
             <div className="alert alert-success mb-6">
-              Account created successfully! Redirecting to dashboard...
+              Password updated successfully! Redirecting to login...
             </div>
           )}
 
-          <form onSubmit={handleSignup} className="space-y-5">
-            <div>
-              <label htmlFor="email" className="form-label">
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="form-input"
-                placeholder="you@example.com"
-              />
-            </div>
-
+          <form onSubmit={handleResetPassword} className="space-y-5">
             <div>
               <label htmlFor="password" className="form-label">
-                Password
+                New Password
               </label>
               <input
                 id="password"
@@ -148,6 +116,7 @@ function SignupContent() {
                 className="form-input"
                 placeholder="••••••••"
                 minLength={6}
+                disabled={success}
               />
               <p className="mt-1 text-xs" style={{ color: 'var(--color-text-muted)' }}>
                 Must be at least 6 characters
@@ -156,7 +125,7 @@ function SignupContent() {
 
             <div>
               <label htmlFor="confirmPassword" className="form-label">
-                Confirm Password
+                Confirm New Password
               </label>
               <input
                 id="confirmPassword"
@@ -167,30 +136,22 @@ function SignupContent() {
                 className="form-input"
                 placeholder="••••••••"
                 minLength={6}
+                disabled={success}
               />
             </div>
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || success}
               className="btn btn-primary w-full"
             >
-              {loading ? 'Creating account...' : 'Sign up'}
+              {loading ? 'Updating...' : 'Update Password'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-small">
-              Already have an account?{' '}
-              <Link href="/login" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                Sign in
-              </Link>
-            </p>
-          </div>
-
-          <div className="mt-4 text-center">
-            <Link href="/" className="text-small" style={{ color: 'var(--color-text-muted)' }}>
-              ← Back to home
+            <Link href="/login" className="text-small" style={{ color: 'var(--color-text-muted)' }}>
+              ← Back to login
             </Link>
           </div>
         </div>
@@ -199,10 +160,10 @@ function SignupContent() {
   );
 }
 
-export default function SignupPage() {
+export default function ResetPasswordPage() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-      <SignupContent />
+      <ResetPasswordContent />
     </Suspense>
   );
 }

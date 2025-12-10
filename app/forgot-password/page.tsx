@@ -1,43 +1,32 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase/client';
 
-function LoginContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    if (searchParams.get('reset') === 'success') {
-      setSuccess('Password updated successfully! You can now sign in.');
-    }
-  }, [searchParams]);
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess(false);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (error) throw error;
 
-      router.push('/dashboard');
-      router.refresh();
+      setSuccess(true);
     } catch (error: any) {
-      setError(error.message || 'An error occurred during login');
+      setError(error.message || 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -59,14 +48,14 @@ function LoginContent() {
           </Link>
         </div>
 
-        {/* Login Card */}
+        {/* Forgot Password Card */}
         <div className="card">
           <div className="text-center mb-6">
             <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
-              Welcome Back
+              Reset Password
             </h1>
             <p className="text-small">
-              Sign in to your Ping account
+              Enter your email and we'll send you a reset link
             </p>
           </div>
 
@@ -78,11 +67,11 @@ function LoginContent() {
 
           {success && (
             <div className="alert alert-success mb-6">
-              {success}
+              Check your email! We've sent you a password reset link.
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleResetPassword} className="space-y-5">
             <div>
               <label htmlFor="email" className="form-label">
                 Email address
@@ -95,47 +84,24 @@ function LoginContent() {
                 required
                 className="form-input"
                 placeholder="you@example.com"
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label htmlFor="password" className="form-label mb-0">
-                  Password
-                </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs"
-                  style={{ color: 'var(--color-accent)', fontWeight: 600 }}
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="form-input"
-                placeholder="••••••••"
+                disabled={success}
               />
             </div>
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || success}
               className="btn btn-primary w-full"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Sending...' : 'Send Reset Link'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-small">
-              Don't have an account?{' '}
-              <Link href="/signup" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                Sign up
+              Remember your password?{' '}
+              <Link href="/login" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                Sign in
               </Link>
             </p>
           </div>
@@ -148,13 +114,5 @@ function LoginContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-      <LoginContent />
-    </Suspense>
   );
 }
