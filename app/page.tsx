@@ -157,27 +157,72 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-secondary)' }}>
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/images/ping-app-icon.svg"
-                alt="Ping"
-                width={32}
-                height={32}
-                className="w-8 h-8"
-              />
-              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                © 2025 Ping. Payment tracking precision refined.
-              </span>
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            {/* Company */}
+            <div>
+              <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>Company</h3>
+              <div className="space-y-2">
+                <Link href="/how-it-works" className="block text-sm hover:underline" style={{ color: 'var(--color-text-secondary)' }}>
+                  How It Works
+                </Link>
+                <Link href="/#features" className="block text-sm hover:underline" style={{ color: 'var(--color-text-secondary)' }}>
+                  Features
+                </Link>
+              </div>
             </div>
-            <div className="flex gap-6">
-              <Link href="/login" className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                Sign In
-              </Link>
-              <Link href="/signup" className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                Sign Up
-              </Link>
+
+            {/* Account */}
+            <div>
+              <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>Account</h3>
+              <div className="space-y-2">
+                <Link href="/login" className="block text-sm hover:underline" style={{ color: 'var(--color-text-secondary)' }}>
+                  Sign In
+                </Link>
+                <Link href="/signup" className="block text-sm hover:underline" style={{ color: 'var(--color-text-secondary)' }}>
+                  Sign Up
+                </Link>
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>Legal</h3>
+              <div className="space-y-2">
+                <Link href="/privacy" className="block text-sm hover:underline" style={{ color: 'var(--color-text-secondary)' }}>
+                  Privacy Policy
+                </Link>
+                <Link href="/terms" className="block text-sm hover:underline" style={{ color: 'var(--color-text-secondary)' }}>
+                  Terms & Conditions
+                </Link>
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>Contact</h3>
+              <div className="space-y-2">
+                <a href="mailto:info@pingitnow.com" className="block text-sm hover:underline" style={{ color: 'var(--color-text-secondary)' }}>
+                  info@pingitnow.com
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t" style={{ borderColor: 'var(--color-border)' }}>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Image
+                  src="/images/ping-app-icon.svg"
+                  alt="Ping"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8"
+                />
+                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                  © 2025 Ping. Payment tracking precision refined.
+                </span>
+              </div>
             </div>
           </div>
         </div>
