@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     // Create Stripe checkout session
     const stripe = new Stripe(tenant.stripe_secret_key, {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: '2025-11-17.clover',
     });
 
     const successUrl = tenant.custom_domain && tenant.domain_verified
