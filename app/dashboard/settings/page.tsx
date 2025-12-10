@@ -74,40 +74,34 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-secondary">Loading...</div>
       </div>
     );
   }
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
-      <p className="text-gray-600 mb-8">
+      <h1 className="text-h1">Settings</h1>
+      <p className="text-secondary mb-8">
         Configure your Stripe API keys and Hyros tracking script
       </p>
 
       {message && (
-        <div
-          className={`mb-6 p-4 rounded-lg ${
-            message.type === 'success'
-              ? 'bg-green-50 text-green-800 border border-green-200'
-              : 'bg-red-50 text-red-800 border border-red-200'
-          }`}
-        >
+        <div className={message.type === 'success' ? 'alert alert-success' : 'alert alert-danger'}>
           {message.text}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Stripe Configuration */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="card">
+          <h2 className="text-h2">
             💳 Stripe Configuration
           </h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="form-label">
                 Secret Key *
               </label>
               <input
@@ -117,16 +111,16 @@ export default function SettingsPage() {
                   setFormData({ ...formData, stripe_secret_key: e.target.value })
                 }
                 placeholder="sk_test_..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="form-input"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted mt-1">
                 Your Stripe secret key (starts with sk_test_ or sk_live_)
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="form-label">
                 Publishable Key *
               </label>
               <input
@@ -136,17 +130,17 @@ export default function SettingsPage() {
                   setFormData({ ...formData, stripe_publishable_key: e.target.value })
                 }
                 placeholder="pk_test_..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="form-input"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted mt-1">
                 Your Stripe publishable key (starts with pk_test_ or pk_live_)
               </p>
             </div>
           </div>
 
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
+          <div className="mt-4 p-3 alert alert-info" style={{ marginBottom: 0 }}>
+            <p className="text-sm">
               <strong>Where to find:</strong> Go to{' '}
               <a
                 href="https://dashboard.stripe.com/test/apikeys"
@@ -161,13 +155,13 @@ export default function SettingsPage() {
         </div>
 
         {/* Hyros Configuration */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="card">
+          <h2 className="text-h2">
             🎯 Hyros Tracking Script
           </h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="form-label">
               Universal Tracking Script *
             </label>
             <textarea
@@ -182,24 +176,24 @@ script.src = "https://data.hyros.com/...";
 head.appendChild(script);
 </script>'
               rows={8}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
+              className="form-input font-mono text-sm"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted mt-1">
               Paste your Hyros universal tracking script here (will be injected in {"<head>"})
             </p>
           </div>
 
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
+          <div className="mt-4 p-3 alert alert-info">
+            <p className="text-sm">
               <strong>Where to find:</strong> Go to Hyros Dashboard → Universal Script
             </p>
           </div>
         </div>
 
         {/* Post-Payment Redirect Configuration */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="card">
+          <h2 className="text-h2">
             🔄 Post-Payment Redirect
           </h2>
 
@@ -212,9 +206,13 @@ head.appendChild(script);
                 onChange={(e) =>
                   setFormData({ ...formData, redirect_enabled: e.target.checked })
                 }
-                className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                className="w-4 h-4 rounded"
+                style={{
+                  accentColor: 'var(--color-accent)',
+                  border: '1px solid var(--color-border)'
+                }}
               />
-              <label htmlFor="redirect_enabled" className="ml-2 text-sm font-medium text-gray-700">
+              <label htmlFor="redirect_enabled" className="ml-2 text-sm font-medium">
                 Enable automatic redirect after payment
               </label>
             </div>
@@ -222,7 +220,7 @@ head.appendChild(script);
             {formData.redirect_enabled && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="form-label">
                     Wait Time (seconds) *
                   </label>
                   <input
@@ -233,16 +231,16 @@ head.appendChild(script);
                     onChange={(e) =>
                       setFormData({ ...formData, redirect_seconds: parseInt(e.target.value) || 5 })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="form-input"
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted mt-1">
                     Number of seconds to wait before redirecting (1-60)
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="form-label">
                     Redirect URL *
                   </label>
                   <input
@@ -252,10 +250,10 @@ head.appendChild(script);
                       setFormData({ ...formData, redirect_url: e.target.value })
                     }
                     placeholder="https://yourwebsite.com/next-step"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="form-input"
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted mt-1">
                     Full URL where customers will be redirected after payment
                   </p>
                 </div>
@@ -263,8 +261,8 @@ head.appendChild(script);
             )}
           </div>
 
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
+          <div className="mt-4 p-3 alert alert-info">
+            <p className="text-sm">
               <strong>Tip:</strong> Use this to redirect customers to the next step in your funnel after a successful payment.
             </p>
           </div>
@@ -275,14 +273,14 @@ head.appendChild(script);
           <button
             type="button"
             onClick={() => router.push('/dashboard')}
-            className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+            className="px-6 py-2 btn btn-secondary"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="px-8 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-2 btn btn-primary"
           >
             {saving ? 'Saving...' : 'Save Settings'}
           </button>
