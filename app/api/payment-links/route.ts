@@ -31,7 +31,29 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
-    return NextResponse.json({ paymentLinks });
+    // Get transaction stats for each payment link
+    const linksWithStats = await Promise.all(
+      (paymentLinks || []).map(async (link) => {
+        const { data: transactions } = await supabaseAdmin
+          .from('transactions')
+          .select('amount')
+          .eq('payment_link_id', link.id)
+          .eq('tenant_id', tenant.id);
+
+        const totalRevenue = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+        const totalSales = transactions?.length || 0;
+
+        return {
+          ...link,
+          stats: {
+            totalRevenue,
+            totalSales,
+          },
+        };
+      })
+    );
+
+    return NextResponse.json({ paymentLinks: linksWithStats });
   } catch (error: any) {
     console.error('Error fetching payment links:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

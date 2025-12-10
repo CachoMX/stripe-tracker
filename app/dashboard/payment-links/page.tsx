@@ -159,10 +159,10 @@ export default function PaymentLinksPage() {
         ) : (
           <div className="space-y-4">
             {links.map((link: any) => (
-              <div key={link.id} className="card p-4">
-                <div className="flex items-start justify-between">
+              <div key={link.id} className="card p-6">
+                <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>{link.name}</h3>
+                    <h3 className="font-semibold text-lg mb-1" style={{ color: 'var(--color-text-primary)' }}>{link.name}</h3>
                     <a
                       href={link.stripe_payment_link}
                       target="_blank"
@@ -188,6 +188,22 @@ export default function PaymentLinksPage() {
                   >
                     {deleting === link.id ? 'Deleting...' : '🗑️ Delete'}
                   </button>
+                </div>
+
+                {/* Analytics Stats */}
+                <div className="grid grid-cols-2 gap-4 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
+                  <div className="text-center p-3 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
+                    <p className="text-xs text-muted mb-1">Total Revenue</p>
+                    <p className="text-xl font-bold" style={{ color: 'var(--color-accent)' }}>
+                      ${((link.stats?.totalRevenue || 0) / 100).toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="text-center p-3 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
+                    <p className="text-xs text-muted mb-1">Total Sales</p>
+                    <p className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                      {link.stats?.totalSales || 0}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}
