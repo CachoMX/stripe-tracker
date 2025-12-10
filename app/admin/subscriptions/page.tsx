@@ -22,7 +22,7 @@ interface SubscriptionStats {
   byPlan: {
     starter: number;
     pro: number;
-    enterprise: number;
+    business: number;
   };
 }
 
@@ -84,25 +84,44 @@ export default function AdminSubscriptionsPage() {
         <StatCard title="Monthly MRR" value={`$${stats?.totalMRR || 0}`} icon="💰" />
       </div>
 
-      {/* Plans Breakdown */}
+      {/* Revenue Breakdown */}
       <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)' }}>
-        <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>Subscriptions by Plan</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <PlanCard
-            name="Starter"
-            count={stats?.byPlan.starter || 0}
-            price={9}
-          />
-          <PlanCard
-            name="Pro"
-            count={stats?.byPlan.pro || 0}
-            price={29}
-          />
-          <PlanCard
-            name="Enterprise"
-            count={stats?.byPlan.enterprise || 0}
-            price={99}
-          />
+        <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>Revenue Breakdown</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="rounded-lg p-6" style={{ border: '2px solid var(--color-accent)', background: 'var(--color-bg-secondary)' }}>
+            <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>Platform Subscription</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Active:</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{stats?.active || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Price:</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>$29/mo</span>
+              </div>
+              <div className="flex justify-between pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>MRR:</span>
+                <span className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>${stats?.totalMRR || 0}</span>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg p-6" style={{ border: '2px solid var(--color-border)', background: 'var(--color-bg-secondary)' }}>
+            <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>Trial Users</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>On Trial:</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{stats?.trial || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Inactive:</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{stats?.inactive || 0}</span>
+              </div>
+              <div className="flex justify-between pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Total:</span>
+                <span className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>{(stats?.trial || 0) + (stats?.inactive || 0)}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -200,26 +219,3 @@ function StatCard({ title, value, icon }: { title: string; value: string | numbe
   );
 }
 
-function PlanCard({ name, count, price }: { name: string; count: number; price: number }) {
-  const revenue = count * price;
-
-  return (
-    <div className="rounded-lg p-6" style={{ border: '2px solid var(--color-accent)', background: 'var(--color-bg-secondary)' }}>
-      <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>{name}</h3>
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Active:</span>
-          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{count}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Price:</span>
-          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>${price}/mo</span>
-        </div>
-        <div className="flex justify-between pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
-          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>MRR:</span>
-          <span className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>${revenue}</span>
-        </div>
-      </div>
-    </div>
-  );
-}

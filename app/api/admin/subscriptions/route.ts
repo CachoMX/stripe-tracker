@@ -24,13 +24,13 @@ export async function GET(request: NextRequest) {
     const trial = subscriptions?.filter((s) => !s.subscription_status && s.trial_ends_at).length || 0;
     const inactive = subscriptions?.filter((s) => !s.subscription_status && !s.trial_ends_at).length || 0;
 
-    // Count by plan
-    const starter = subscriptions?.filter((s) => s.subscription_plan === 'starter').length || 0;
-    const pro = subscriptions?.filter((s) => s.subscription_plan === 'pro').length || 0;
-    const enterprise = subscriptions?.filter((s) => s.subscription_plan === 'enterprise').length || 0;
+    // Count by plan (using your actual plan names)
+    const starter = subscriptions?.filter((s) => s.subscription_plan && (s.subscription_plan.toLowerCase().includes('starter') || s.subscription_plan.toLowerCase().includes('basic'))).length || 0;
+    const pro = subscriptions?.filter((s) => s.subscription_plan && s.subscription_plan.toLowerCase().includes('pro')).length || 0;
+    const business = subscriptions?.filter((s) => s.subscription_plan && (s.subscription_plan.toLowerCase().includes('business') || s.subscription_plan.toLowerCase().includes('enterprise'))).length || 0;
 
-    // Calculate MRR (Monthly Recurring Revenue)
-    const totalMRR = (starter * 9) + (pro * 29) + (enterprise * 99);
+    // Calculate MRR (Monthly Recurring Revenue) - $29/month based on your pricing
+    const totalMRR = active * 29; // All active subscriptions are $29/month
 
     const stats = {
       active,
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       byPlan: {
         starter,
         pro,
-        enterprise,
+        business,
       },
     };
 
