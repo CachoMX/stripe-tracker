@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     // Get or create tenant
     let { data: tenant } = await supabaseAdmin
       .from('tenants')
-      .select('id, stripe_secret_key')
+      .select('id, stripe_secret_key, custom_domain, domain_verified')
       .eq('clerk_user_id', user.id)
       .single();
 
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
           clerk_user_id: user.id,
           email: user.email,
         })
-        .select('id, stripe_secret_key')
+        .select('id, stripe_secret_key, custom_domain, domain_verified')
         .single();
 
       if (tenantError) throw tenantError;
@@ -130,6 +130,11 @@ export async function POST(request: NextRequest) {
       currency: currency,
     });
 
+    // Determine the success URL based on custom domain
+    const successUrl = tenant.custom_domain && tenant.domain_verified
+      ? `https://${tenant.custom_domain}/ty?session_id={CHECKOUT_SESSION_ID}`
+      : `${process.env.NEXT_PUBLIC_APP_URL}/ty?session_id={CHECKOUT_SESSION_ID}`;
+
     // Create payment link in Stripe with custom success URL
     const stripePaymentLink = await stripe.paymentLinks.create({
       line_items: [
@@ -141,7 +146,7 @@ export async function POST(request: NextRequest) {
       after_completion: {
         type: 'redirect',
         redirect: {
-          url: `${process.env.NEXT_PUBLIC_APP_URL}/ty?session_id={CHECKOUT_SESSION_ID}`,
+          url: successUrl,
         },
       },
     });
