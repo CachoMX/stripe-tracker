@@ -44,6 +44,11 @@ export async function addDomainToVercel(domain: string): Promise<VercelDomainRes
 }
 
 export async function verifyDomainInVercel(domain: string): Promise<VercelDomainResponse> {
+  console.log('verifyDomainInVercel called with domain:', domain);
+  console.log('VERCEL_API_TOKEN exists:', !!VERCEL_API_TOKEN);
+  console.log('VERCEL_PROJECT_ID exists:', !!VERCEL_PROJECT_ID);
+  console.log('VERCEL_PROJECT_ID value:', VERCEL_PROJECT_ID);
+
   if (!VERCEL_API_TOKEN || !VERCEL_PROJECT_ID) {
     throw new Error('Vercel API credentials not configured');
   }
@@ -52,6 +57,8 @@ export async function verifyDomainInVercel(domain: string): Promise<VercelDomain
     VERCEL_TEAM_ID ? `?teamId=${VERCEL_TEAM_ID}` : ''
   }`;
 
+  console.log('Calling Vercel API URL:', url);
+
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -59,12 +66,17 @@ export async function verifyDomainInVercel(domain: string): Promise<VercelDomain
     },
   });
 
+  console.log('Vercel API response status:', response.status);
+
   if (!response.ok) {
     const error = await response.json();
+    console.error('Vercel API error response:', error);
     throw new Error(error.error?.message || 'Failed to verify domain in Vercel');
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('Vercel API success response:', result);
+  return result;
 }
 
 export async function removeDomainFromVercel(domain: string): Promise<void> {

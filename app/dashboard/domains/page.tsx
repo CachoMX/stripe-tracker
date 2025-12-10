@@ -170,7 +170,7 @@ export default function DomainsPage() {
               <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <h3 className="font-semibold text-yellow-900 mb-4">DNS Configuration Required</h3>
                 <p className="text-sm text-yellow-800 mb-4">
-                  Add the following CNAME record to your DNS settings:
+                  Add the following CNAME record to your DNS provider (GoDaddy, Cloudflare, Namecheap, etc.):
                 </p>
                 <div className="bg-white p-4 rounded border border-yellow-300 font-mono text-sm">
                   <div className="grid grid-cols-3 gap-4">
@@ -180,7 +180,7 @@ export default function DomainsPage() {
                     </div>
                     <div>
                       <div className="text-xs text-gray-500 mb-1">Name</div>
-                      <div>{customDomain}</div>
+                      <div>{customDomain.split('.')[0]}</div>
                     </div>
                     <div>
                       <div className="text-xs text-gray-500 mb-1">Value</div>
