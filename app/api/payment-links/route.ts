@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       currency: currency,
     });
 
-    // Create payment link in Stripe
+    // Create payment link in Stripe with custom success URL
     const stripePaymentLink = await stripe.paymentLinks.create({
       line_items: [
         {
@@ -138,6 +138,12 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
+      after_completion: {
+        type: 'redirect',
+        redirect: {
+          url: `${process.env.NEXT_PUBLIC_APP_URL}/ty?session_id={CHECKOUT_SESSION_ID}`,
+        },
+      },
     });
 
     // Save payment link to database
