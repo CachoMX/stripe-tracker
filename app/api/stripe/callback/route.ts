@@ -34,6 +34,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Exchange code for access token
+    console.log('Exchanging OAuth code for access token...');
+
     const tokenResponse = await fetch('https://connect.stripe.com/oauth/token', {
       method: 'POST',
       headers: {
@@ -49,13 +51,16 @@ export async function GET(request: NextRequest) {
     if (!tokenResponse.ok) {
       const errorData = await tokenResponse.json();
       console.error('Stripe token exchange failed:', errorData);
+      console.error('Response status:', tokenResponse.status);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?error=Failed to connect Stripe account`
+        `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?error=${encodeURIComponent('Failed to connect: ' + (errorData.error_description || errorData.error || 'Unknown error'))}`
       );
     }
 
     const tokenData = await tokenResponse.json();
     const { stripe_user_id, access_token, refresh_token } = tokenData;
+
+    console.log('✅ Token exchange successful, stripe_user_id:', stripe_user_id);
 
     // Update tenant with Stripe account info
     const { error: updateError } = await supabaseAdmin
@@ -70,9 +75,11 @@ export async function GET(request: NextRequest) {
     if (updateError) {
       console.error('Error updating tenant:', updateError);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?error=Failed to save Stripe connection`
+        `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?error=${encodeURIComponent('Failed to save Stripe connection: ' + updateError.message)}`
       );
     }
+
+    console.log('✅ Tenant updated successfully');
 
     // Success! Redirect back to settings
     return NextResponse.redirect(
