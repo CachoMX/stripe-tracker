@@ -10,13 +10,6 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Image
-                src="/images/ping-app-icon.svg"
-                alt="Ping"
-                width={40}
-                height={40}
-                className="w-10 h-10"
-              />
-              <Image
                 src="/images/ping-wordmark-dark.svg"
                 alt="Ping"
                 width={100}
@@ -41,8 +34,8 @@ export default function HomePage() {
         <div className="text-center max-w-4xl mx-auto">
           <div className="mb-6 flex justify-center">
             <Image
-              src="/images/ping-precision-refined.svg"
-              alt="Ping - Precision Refined"
+              src="/images/ping-icon-export.svg"
+              alt="Ping"
               width={120}
               height={120}
               className="w-24 h-24 md:w-32 md:h-32"
