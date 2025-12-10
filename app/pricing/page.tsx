@@ -144,6 +144,9 @@ function PricingContent() {
               <Link href="/how-it-works" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-secondary)' }}>
                 How It Works
               </Link>
+              <Link href="/pricing" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-primary)' }}>
+                Pricing
+              </Link>
               <Link href="/login" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-secondary)' }}>
                 Sign In
               </Link>
