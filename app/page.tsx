@@ -21,6 +21,9 @@ export default function HomePage() {
               <Link href="/how-it-works" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-secondary)' }}>
                 How It Works
               </Link>
+              <Link href="/pricing" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-secondary)' }}>
+                Pricing
+              </Link>
               <Link href="/login" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: 'var(--color-text-secondary)' }}>
                 Sign In
               </Link>
@@ -171,6 +174,9 @@ export default function HomePage() {
                 </Link>
                 <Link href="/#features" className="block text-sm hover:underline" style={{ color: 'var(--color-text-secondary)' }}>
                   Features
+                </Link>
+                <Link href="/pricing" className="block text-sm hover:underline" style={{ color: 'var(--color-text-secondary)' }}>
+                  Pricing
                 </Link>
               </div>
             </div>

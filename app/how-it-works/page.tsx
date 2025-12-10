@@ -232,7 +232,7 @@ export default function HowItWorksPage() {
           <Link href="/signup" className="btn btn-primary btn-lg">
             Start Free Trial
           </Link>
-          <Link href="/" className="btn btn-secondary btn-lg">
+          <Link href="/pricing" className="btn btn-secondary btn-lg">
             View Pricing
           </Link>
         </div>
