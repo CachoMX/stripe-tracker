@@ -5,11 +5,30 @@ import { useState, useEffect } from 'react';
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    totalTransactions: 0,
+    avgTransaction: 0,
+  });
 
   useEffect(() => {
-    // TODO: Fetch transactions from API
-    setLoading(false);
+    fetchTransactions();
   }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      const response = await fetch('/api/transactions');
+      const data = await response.json();
+      if (data.transactions) {
+        setTransactions(data.transactions);
+        setStats(data.stats);
+      }
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -35,7 +54,7 @@ export default function TransactionsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Transactions</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">0</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">{stats.totalTransactions}</p>
             </div>
             <div className="text-4xl">📊</div>
           </div>
@@ -44,7 +63,9 @@ export default function TransactionsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Avg. Transaction</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">$0.00</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">
+                ${(stats.avgTransaction / 100).toFixed(2)}
+              </p>
             </div>
             <div className="text-4xl">📈</div>
           </div>
