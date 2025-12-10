@@ -57,13 +57,13 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3 mb-6">
+          <Link href="/" className="inline-flex justify-center mb-6">
             <Image
-              src="/images/ping-wordmark-dark.svg"
+              src="/images/ping-icon-export.svg"
               alt="Ping"
-              width={200}
-              height={60}
-              className="h-16 w-auto"
+              width={80}
+              height={80}
+              className="w-20 h-20"
             />
           </Link>
         </div>
