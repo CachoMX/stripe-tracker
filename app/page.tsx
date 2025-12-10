@@ -12,9 +12,9 @@ export default function HomePage() {
               <Image
                 src="/images/ping-wordmark-dark.svg"
                 alt="Ping"
-                width={100}
-                height={30}
-                className="h-8 w-auto"
+                width={140}
+                height={40}
+                className="h-10 w-auto"
               />
             </div>
             <div className="flex items-center gap-4">
