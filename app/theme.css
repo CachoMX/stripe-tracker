@@ -722,11 +722,3 @@ textarea::placeholder {
   --wordmark-dark-display: block;
 }
 
-/* System preference for light mode */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --wordmark-light-display: none;
-    --wordmark-dark-display: block;
-  }
-}
-

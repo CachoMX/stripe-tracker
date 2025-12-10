@@ -9,30 +9,12 @@ export default function ThemeToggle() {
   useEffect(() => {
     setMounted(true);
 
-    // Get initial theme
-    const getColorPreference = () => {
-      const stored = localStorage.getItem('theme-preference');
-      if (stored) return stored as 'light' | 'dark';
+    // Get initial theme - default to dark
+    const stored = localStorage.getItem('theme-preference');
+    const initialTheme = (stored as 'light' | 'dark') || 'dark';
 
-      return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-    };
-
-    const initialTheme = getColorPreference();
     setTheme(initialTheme);
     document.documentElement.setAttribute('data-theme', initialTheme);
-
-    // Listen for system changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem('theme-preference')) {
-        const newTheme = e.matches ? 'dark' : 'light';
-        setTheme(newTheme);
-        document.documentElement.setAttribute('data-theme', newTheme);
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   const toggleTheme = () => {
