@@ -31,6 +31,10 @@ function SignupContent() {
     }
 
     try {
+      // IMPORTANT: Sign out any existing session first
+      await supabase.auth.signOut();
+
+      // Now create the new account
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -41,10 +45,17 @@ function SignupContent() {
 
       if (error) throw error;
 
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        setError('Please check your email to confirm your account before signing in.');
+        setLoading(false);
+        return;
+      }
+
       setSuccess(true);
 
-      // Auto login after signup
-      if (data.user) {
+      // Auto login after signup (session is already created by signUp)
+      if (data.user && data.session) {
         setTimeout(() => {
           // If there's a plan selected, redirect to pricing to complete checkout
           if (planFromUrl && redirectTo === 'pricing') {
