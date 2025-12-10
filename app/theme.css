@@ -711,12 +711,22 @@ textarea::placeholder {
 
 /* Wordmark display based on theme */
 :root {
+  /* Dark theme (default): show LIGHT wordmark (white text on dark bg) */
   --wordmark-light-display: block;
   --wordmark-dark-display: none;
 }
 
 [data-theme="light"] {
+  /* Light theme: show DARK wordmark (dark text on light bg) */
   --wordmark-light-display: none;
   --wordmark-dark-display: block;
+}
+
+/* System preference for light mode */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --wordmark-light-display: none;
+    --wordmark-dark-display: block;
+  }
 }
 
