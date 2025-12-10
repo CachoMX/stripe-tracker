@@ -7,6 +7,7 @@ import Image from 'next/image';
 const plans = [
   {
     name: 'Starter',
+    planId: 'starter',
     description: 'Perfect for solo entrepreneurs and small stores',
     monthlyPrice: 29,
     features: [
@@ -22,6 +23,7 @@ const plans = [
   },
   {
     name: 'Pro',
+    planId: 'pro',
     description: 'For growing businesses and agencies',
     monthlyPrice: 79,
     features: [
@@ -37,6 +39,7 @@ const plans = [
   },
   {
     name: 'Business',
+    planId: 'business',
     description: 'For high-volume and enterprise needs',
     monthlyPrice: 199,
     features: [
@@ -54,6 +57,33 @@ const plans = [
 
 export default function PricingPage() {
   const [isYearly, setIsYearly] = useState(false);
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const handleSelectPlan = async (planId: string) => {
+    setLoading(planId);
+
+    try {
+      const response = await fetch('/api/create-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: planId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Failed to create checkout session');
+        setLoading(null);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+      setLoading(null);
+    }
+  };
 
   const getPrice = (monthlyPrice: number) => {
     if (isYearly) {
@@ -200,12 +230,13 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              <Link
-                href="/signup"
+              <button
+                onClick={() => handleSelectPlan(plan.planId)}
+                disabled={loading === plan.planId}
                 className={`btn w-full text-center ${plan.highlighted ? 'btn-primary' : 'btn-secondary'}`}
               >
-                {plan.cta}
-              </Link>
+                {loading === plan.planId ? 'Loading...' : plan.cta}
+              </button>
             </div>
           ))}
         </div>
