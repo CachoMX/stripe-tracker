@@ -8,3 +8,33 @@
 }
 
 /* Remove all forced color overrides - let theme.css handle colors */
+
+/* Admin dashboard hover effects */
+.admin-table-row {
+  background: var(--color-bg-card);
+  transition: background 0.2s ease;
+}
+
+.admin-table-row:hover {
+  background: var(--color-bg-hover);
+}
+
+.admin-quick-action {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  transition: border-color 0.2s ease;
+}
+
+.admin-quick-action:hover {
+  border-color: var(--color-accent);
+}
+
+.admin-nav-link {
+  color: var(--color-text-secondary);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.admin-nav-link:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}

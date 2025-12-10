@@ -214,7 +214,7 @@ export default function AdminClientsPage() {
               </thead>
               <tbody className="divide-y" style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
                 {clients.map((client) => (
-                  <tr key={client.id} className="hover:transition" onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-bg-card)'}>
+                  <tr key={client.id} className="admin-table-row">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>

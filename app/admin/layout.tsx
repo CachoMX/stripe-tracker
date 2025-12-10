@@ -109,18 +109,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="flex items-center space-x-3 px-4 py-2 rounded-lg transition group"
-      style={{
-        color: 'var(--color-text-secondary)',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'var(--color-bg-hover)';
-        e.currentTarget.style.color = 'var(--color-text-primary)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'transparent';
-        e.currentTarget.style.color = 'var(--color-text-secondary)';
-      }}
+      className="admin-nav-link flex items-center space-x-3 px-4 py-2 rounded-lg transition group"
     >
       <span className="text-xl group-hover:scale-110 transition">{icon}</span>
       <span className="font-medium">

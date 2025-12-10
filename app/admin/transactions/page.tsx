@@ -270,7 +270,7 @@ export default function AdminTransactionsPage() {
               </thead>
               <tbody className="divide-y" style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
                 {transactions.map((transaction) => (
-                  <tr key={transaction.id} className="hover:transition" onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-bg-card)'}>
+                  <tr key={transaction.id} className="admin-table-row">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                         {new Date(transaction.created_at).toLocaleDateString()}

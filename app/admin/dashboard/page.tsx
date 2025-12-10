@@ -224,14 +224,7 @@ function QuickActionButton({
   return (
     <a
       href={href}
-      className="flex items-start space-x-4 p-4 rounded-lg hover:shadow-md transition group"
-      style={{ border: '1px solid var(--color-border)', background: 'var(--color-bg-card)' }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-accent)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-border)';
-      }}
+      className="admin-quick-action flex items-start space-x-4 p-4 rounded-lg hover:shadow-md transition group"
     >
       <div className="text-3xl group-hover:scale-110 transition">{icon}</div>
       <div>
