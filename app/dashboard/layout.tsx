@@ -30,20 +30,11 @@ export default async function DashboardLayout({
               className="w-8 h-8"
             />
             <Image
-              src="/images/ping-wordmark-light.svg"
-              alt="Ping"
-              width={80}
-              height={24}
-              className="h-6 w-auto"
-              style={{ display: 'var(--wordmark-light-display, block)' }}
-            />
-            <Image
               src="/images/ping-wordmark-dark.svg"
               alt="Ping"
               width={80}
               height={24}
               className="h-6 w-auto"
-              style={{ display: 'var(--wordmark-dark-display, none)' }}
             />
           </Link>
           <p className="text-small mt-1">{user.email}</p>

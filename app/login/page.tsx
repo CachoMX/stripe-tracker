@@ -49,20 +49,11 @@ export default function LoginPage() {
               className="w-12 h-12"
             />
             <Image
-              src="/images/ping-wordmark-light.svg"
-              alt="Ping"
-              width={100}
-              height={30}
-              className="h-8 w-auto"
-              style={{ display: 'var(--wordmark-light-display, block)' }}
-            />
-            <Image
               src="/images/ping-wordmark-dark.svg"
               alt="Ping"
               width={100}
               height={30}
               className="h-8 w-auto"
-              style={{ display: 'var(--wordmark-dark-display, none)' }}
             />
           </Link>
         </div>

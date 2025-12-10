@@ -17,20 +17,11 @@ export default function HomePage() {
                 className="w-10 h-10"
               />
               <Image
-                src="/images/ping-wordmark-light.svg"
-                alt="Ping"
-                width={100}
-                height={30}
-                className="h-8 w-auto"
-                style={{ display: 'var(--wordmark-light-display, block)' }}
-              />
-              <Image
                 src="/images/ping-wordmark-dark.svg"
                 alt="Ping"
                 width={100}
                 height={30}
                 className="h-8 w-auto"
-                style={{ display: 'var(--wordmark-dark-display, none)' }}
               />
             </div>
             <div className="flex items-center gap-4">
