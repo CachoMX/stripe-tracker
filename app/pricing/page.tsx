@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -56,12 +56,10 @@ const plans = [
   },
 ];
 
-export default function PricingPage() {
+// Separate component for auto-checkout logic
+function AutoCheckoutHandler({ onSelectPlan }: { onSelectPlan: (planId: string) => void }) {
   const searchParams = useSearchParams();
-  const [isYearly, setIsYearly] = useState(false);
-  const [loading, setLoading] = useState<string | null>(null);
 
-  // Auto-checkout after signup
   useEffect(() => {
     const autoCheckout = searchParams.get('autoCheckout');
     const plan = searchParams.get('plan');
@@ -69,10 +67,17 @@ export default function PricingPage() {
     if (autoCheckout === 'true' && plan) {
       // Wait a moment for user to see the page, then start checkout
       setTimeout(() => {
-        handleSelectPlan(plan);
+        onSelectPlan(plan);
       }, 500);
     }
-  }, [searchParams]);
+  }, [searchParams, onSelectPlan]);
+
+  return null;
+}
+
+function PricingContent() {
+  const [isYearly, setIsYearly] = useState(false);
+  const [loading, setLoading] = useState<string | null>(null);
 
   const handleSelectPlan = async (planId: string) => {
     setLoading(planId);
@@ -117,6 +122,9 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+      <Suspense fallback={<div>Loading...</div>}>
+        <AutoCheckoutHandler onSelectPlan={handleSelectPlan} />
+      </Suspense>
       {/* Navigation */}
       <nav className="border-b" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-secondary)' }}>
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -354,5 +362,13 @@ export default function PricingPage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <PricingContent />
+    </Suspense>
   );
 }
