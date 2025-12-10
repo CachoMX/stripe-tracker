@@ -233,6 +233,7 @@ head.appendChild(script);
 </script>'
               rows={8}
               className="form-input font-mono text-sm"
+              style={{ minHeight: '200px' }}
               required
             />
             <p className="text-xs text-muted mt-1">
