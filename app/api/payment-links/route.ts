@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { logger } from '@/lib/logger';
 import Stripe from 'stripe';
 
 export async function GET(request: NextRequest) {
@@ -23,40 +24,46 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
     }
 
-    // Get payment links
-    const { data: paymentLinks, error } = await supabaseAdmin
+    // ✅ OPTIMIZED: Get payment links with stats in a single query using aggregation
+    // First get all payment links
+    const { data: paymentLinks, error: linksError } = await supabaseAdmin
       .from('payment_links')
       .select('*')
       .eq('tenant_id', tenant.id)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (linksError) throw linksError;
 
-    // Get transaction stats for each payment link
-    const linksWithStats = await Promise.all(
-      (paymentLinks || []).map(async (link) => {
-        const { data: transactions } = await supabaseAdmin
-          .from('transactions')
-          .select('amount')
-          .eq('payment_link_id', link.id)
-          .eq('tenant_id', tenant.id);
+    // Then get aggregated stats for all links in one query
+    const { data: statsData, error: statsError } = await supabaseAdmin
+      .from('transactions')
+      .select('payment_link_id, amount')
+      .eq('tenant_id', tenant.id)
+      .not('payment_link_id', 'is', null);
 
-        const totalRevenue = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
-        const totalSales = transactions?.length || 0;
+    if (statsError) throw statsError;
 
-        return {
-          ...link,
-          stats: {
-            totalRevenue,
-            totalSales,
-          },
-        };
-      })
-    );
+    // Aggregate stats by payment_link_id
+    const statsMap = new Map();
+    (statsData || []).forEach((transaction) => {
+      const linkId = transaction.payment_link_id;
+      if (!statsMap.has(linkId)) {
+        statsMap.set(linkId, { totalRevenue: 0, totalSales: 0 });
+      }
+      const stats = statsMap.get(linkId);
+      stats.totalRevenue += transaction.amount || 0;
+      stats.totalSales += 1;
+    });
+
+    // Combine payment links with their stats
+    const linksWithStats = (paymentLinks || []).map((link) => ({
+      ...link,
+      stats: statsMap.get(link.id) || { totalRevenue: 0, totalSales: 0 },
+    }));
 
     return NextResponse.json({ paymentLinks: linksWithStats });
   } catch (error: any) {
-    console.error('Error fetching payment links:', error);
+    logger.error('Error fetching payment links', { error: error.message });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -166,7 +173,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ paymentLink }, { status: 201 });
   } catch (error: any) {
-    console.error('Error creating payment link:', error);
+    logger.error('Error creating payment link', { error: error.message });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -215,7 +222,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Error updating payment link:', error);
+    logger.error('Error updating payment link', { error: error.message });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -258,7 +265,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Error deleting payment link:', error);
+    logger.error('Error deleting payment link', { error: error.message });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { retrieveCheckoutSession } from '@/lib/stripe/client';
+import { matchPaymentLinkFromSession } from '@/lib/stripe/payment-link-matcher';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -138,44 +140,13 @@ export async function GET(request: NextRequest) {
     const customerEmail = session.customer_details?.email || 'No email provided';
     const customerName = session.customer_details?.name || '';
 
-    // Try to match payment link from session
-    let paymentLinkId = null;
-
-    // Check if this session came from a payment link
-    if (session.payment_link) {
-      // Get the Stripe SDK
-      const Stripe = require('stripe');
-      const stripe = new Stripe(tenant.stripe_secret_key, {
-        apiVersion: '2025-11-17.clover',
-      });
-
-      try {
-        // Retrieve the payment link details from Stripe
-        const paymentLink = await stripe.paymentLinks.retrieve(session.payment_link);
-        const paymentLinkUrl = paymentLink.url;
-
-        console.log('Payment Link URL from Stripe:', paymentLinkUrl);
-
-        // Find matching payment link in database
-        const { data: matchedLink } = await supabaseAdmin
-          .from('payment_links')
-          .select('id')
-          .eq('tenant_id', tenant.id)
-          .eq('stripe_payment_link', paymentLinkUrl)
-          .single();
-
-        if (matchedLink) {
-          paymentLinkId = matchedLink.id;
-          console.log('✅ Matched payment link ID:', paymentLinkId);
-        } else {
-          console.log('❌ No matching payment link found in database for URL:', paymentLinkUrl);
-        }
-      } catch (err) {
-        console.error('Error retrieving payment link from Stripe:', err);
-      }
-    } else {
-      console.log('ℹ️ Session did not come from a payment link (checkout session instead)');
-    }
+    // ✅ Match payment link using helper function (moved Stripe logic out of render)
+    const paymentLinkId = await matchPaymentLinkFromSession(
+      tenant.stripe_secret_key,
+      session,
+      tenant.id,
+      supabaseAdmin
+    );
 
     // Log transaction
     await supabaseAdmin.from('transactions').insert({
@@ -365,7 +336,7 @@ export async function GET(request: NextRequest) {
       }
     );
   } catch (error: any) {
-    console.error('Error in thank you page:', error);
+    logger.error('Error in thank you page', { error: error.message, stack: error.stack });
 
     return new NextResponse(
       `

@@ -2,6 +2,54 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import DOMPurify from 'isomorphic-dompurify';
+
+// Whitelist of allowed tracking domains
+const ALLOWED_TRACKING_DOMAINS = [
+  'data.hyros.com',
+  'analytics.google.com',
+  'www.googletagmanager.com',
+  'connect.facebook.net',
+];
+
+function validateTrackingScript(script: string): { valid: boolean; error?: string } {
+  if (!script.trim()) {
+    return { valid: true }; // Empty is ok
+  }
+
+  // Must be a script tag
+  if (!script.trim().match(/^<script[\s>]/i) || !script.trim().match(/<\/script>$/i)) {
+    return {
+      valid: false,
+      error: 'Tracking script must be a valid <script> tag'
+    };
+  }
+
+  // Extract src if present
+  const srcMatch = script.match(/src=["']([^"']+)["']/i);
+  if (srcMatch) {
+    try {
+      const url = new URL(srcMatch[1]);
+      const isAllowed = ALLOWED_TRACKING_DOMAINS.some(domain =>
+        url.hostname === domain || url.hostname.endsWith('.' + domain)
+      );
+
+      if (!isAllowed) {
+        return {
+          valid: false,
+          error: `Domain ${url.hostname} is not in the whitelist. Allowed domains: ${ALLOWED_TRACKING_DOMAINS.join(', ')}`
+        };
+      }
+    } catch (e) {
+      return {
+        valid: false,
+        error: 'Invalid URL in script src'
+      };
+    }
+  }
+
+  return { valid: true };
+}
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -106,11 +154,29 @@ export default function SettingsPage() {
     setSaving(true);
     setMessage(null);
 
+    // ✅ Validate tracking script
+    const validation = validateTrackingScript(formData.hyros_tracking_script);
+    if (!validation.valid) {
+      setMessage({ type: 'error', text: validation.error || 'Invalid tracking script' });
+      setSaving(false);
+      return;
+    }
+
+    // ✅ Sanitize tracking script
+    const sanitizedScript = DOMPurify.sanitize(formData.hyros_tracking_script, {
+      ALLOWED_TAGS: ['script'],
+      ALLOWED_ATTR: ['src', 'type', 'async', 'defer', 'crossorigin'],
+      KEEP_CONTENT: true,
+    });
+
     try {
       const res = await fetch('/api/tenant', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          hyros_tracking_script: sanitizedScript,
+        }),
       });
 
       const data = await res.json();

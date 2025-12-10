@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { logger } from '@/lib/logger';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -29,11 +30,23 @@ export async function POST(request: NextRequest) {
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err: any) {
-      console.error('Webhook signature verification failed:', err.message);
+      logger.error('Webhook signature verification failed', { error: err.message });
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
-    console.log('Webhook event:', event.type);
+    // ✅ IDEMPOTENCY CHECK - Prevent duplicate processing
+    const { data: existingEvent } = await supabaseAdmin
+      .from('webhook_events')
+      .select('id')
+      .eq('id', event.id)
+      .single();
+
+    if (existingEvent) {
+      logger.webhook.duplicate(event.id);
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+
+    logger.webhook.received(event.type, event.id);
 
     // Handle different event types
     switch (event.type) {
@@ -80,9 +93,9 @@ export async function POST(request: NextRequest) {
                 })
                 .eq('id', tenantId);
 
-              console.log('✅ Subscription created:', subscription.id);
+              logger.webhook.processed('checkout.session.completed', event.id, tenantId);
             } else {
-              console.error('❌ Could not find tenant for subscription:', subscription.id);
+              logger.webhook.tenantNotFound(subscription.id, subscription.customer as string);
             }
           }
         }
@@ -110,7 +123,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', tenant.id);
 
-          console.log('✅ Subscription updated:', subscription.id);
+          logger.webhook.processed('customer.subscription.updated', event.id, tenant.id);
         }
         break;
       }
@@ -135,7 +148,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', tenant.id);
 
-          console.log('✅ Subscription canceled:', subscription.id);
+          logger.webhook.processed('customer.subscription.deleted', event.id, tenant.id);
         }
         break;
       }
@@ -159,18 +172,46 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', tenant.id);
 
-          console.log('⚠️ Payment failed for subscription');
+          logger.warn('Payment failed for subscription', {
+            eventType: 'invoice.payment_failed',
+            tenantId: tenant.id,
+            customerId,
+          });
         }
         break;
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        logger.info(`Unhandled event type: ${event.type}`, { eventType: event.type, eventId: event.id });
     }
+
+    // ✅ Mark event as processed
+    await supabaseAdmin
+      .from('webhook_events')
+      .insert({
+        id: event.id,
+        event_type: event.type,
+        payload: event as any,
+      });
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
-    console.error('Webhook error:', error);
+    logger.error('Webhook error', { error: error.message, stack: error.stack });
+
+    // ✅ Save failed webhook for retry
+    try {
+      await supabaseAdmin
+        .from('failed_webhooks')
+        .insert({
+          event_id: (event as any)?.id || 'unknown',
+          event_type: (event as any)?.type || 'unknown',
+          payload: event as any,
+          error: error.message,
+        });
+    } catch (saveError) {
+      logger.error('Failed to save failed webhook', { error: saveError });
+    }
+
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
