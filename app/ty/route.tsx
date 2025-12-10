@@ -349,7 +349,7 @@ export async function GET(request: NextRequest) {
 
             if (seconds <= 0) {
               clearInterval(interval);
-              window.location.href = '${isSubscription ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard` : redirectUrl}';
+              window.location.href = '${isSubscription ? '/dashboard' : redirectUrl}';
             }
           }, 1000);
         </script>
