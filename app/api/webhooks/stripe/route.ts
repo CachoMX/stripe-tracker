@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
           if (tenantId && session.subscription) {
             // Get subscription details
             const subscription = await stripe.subscriptions.retrieve(
-              session.subscription as string
+              session.subscription as string,
+              { expand: ['latest_invoice', 'customer'] }
             );
 
             await supabaseAdmin
@@ -57,8 +58,8 @@ export async function POST(request: NextRequest) {
                 stripe_subscription_id: subscription.id,
                 subscription_plan: plan,
                 subscription_status: subscription.status,
-                subscription_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                subscription_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                subscription_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+                subscription_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
                 transaction_limit: PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS],
               })
               .eq('id', tenantId);
@@ -85,8 +86,8 @@ export async function POST(request: NextRequest) {
             .from('tenants')
             .update({
               subscription_status: subscription.status,
-              subscription_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              subscription_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              subscription_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+              subscription_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
             })
             .eq('id', tenant.id);
 
