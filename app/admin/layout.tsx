@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server-client';
 import { isAdmin } from '@/lib/admin-auth';
 import Link from 'next/link';
+import SignOutButton from './SignOutButton';
 
 export default async function AdminLayout({
   children,
@@ -49,6 +50,7 @@ export default async function AdminLayout({
               >
                 Regular Dashboard
               </Link>
+              <SignOutButton />
             </div>
           </div>
         </div>
