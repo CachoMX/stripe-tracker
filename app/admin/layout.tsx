@@ -79,12 +79,6 @@ export default async function AdminLayout({
             <NavLink href="/admin/domains" icon="🌐">
               Domains
             </NavLink>
-
-            <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
-              <NavLink href="/admin/settings" icon="⚙️">
-                Settings
-              </NavLink>
-            </div>
           </nav>
         </aside>
 
