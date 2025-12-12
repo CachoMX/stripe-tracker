@@ -149,6 +149,8 @@ export default function AdminAnalyticsPage() {
               stroke="#50f5ac"
               strokeWidth={2}
               name="Revenue ($)"
+              dot={{ fill: '#50f5ac', r: 4 }}
+              activeDot={{ r: 6 }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -158,7 +160,7 @@ export default function AdminAnalyticsPage() {
       <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
         <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>Transactions Over Time</h2>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data.revenueChart}>
+          <LineChart data={data.revenueChart}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
             <XAxis
               dataKey="date"
@@ -172,8 +174,16 @@ export default function AdminAnalyticsPage() {
               contentStyle={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
             />
             <Legend wrapperStyle={{ color: 'var(--color-text-primary)' }} />
-            <Bar dataKey="transactions" fill="#50f5ac" name="Transactions" />
-          </BarChart>
+            <Line
+              type="monotone"
+              dataKey="transactions"
+              stroke="#50f5ac"
+              strokeWidth={2}
+              name="Transactions"
+              dot={{ fill: '#50f5ac', r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+          </LineChart>
         </ResponsiveContainer>
       </div>
 
@@ -182,7 +192,7 @@ export default function AdminAnalyticsPage() {
         <div className="rounded-lg p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
           <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>New Clients</h2>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={data.clientGrowth}>
+            <LineChart data={data.clientGrowth}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
               <XAxis
                 dataKey="date"
@@ -196,8 +206,16 @@ export default function AdminAnalyticsPage() {
                 contentStyle={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
               />
               <Legend wrapperStyle={{ color: 'var(--color-text-primary)' }} />
-              <Bar dataKey="newClients" fill="#50f5ac" name="New Clients" />
-            </BarChart>
+              <Line
+                type="monotone"
+                dataKey="newClients"
+                stroke="#50f5ac"
+                strokeWidth={2}
+                name="New Clients"
+                dot={{ fill: '#50f5ac', r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
           </ResponsiveContainer>
         </div>
       )}

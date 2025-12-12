@@ -1,0 +1,324 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+interface AvailableLink {
+  id: string;
+  url: string;
+  active: boolean;
+  amount: number;
+  currency: string;
+  product_name: string;
+  description: string | null;
+  metadata: Record<string, string>;
+}
+
+interface ImportLinkWithUrl extends AvailableLink {
+  tyPageUrl: string;
+}
+
+export default function ImportPaymentLinksPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
+  const [availableLinks, setAvailableLinks] = useState<AvailableLink[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [alreadyImported, setAlreadyImported] = useState(0);
+  const [linksWithUrls, setLinksWithUrls] = useState<ImportLinkWithUrl[]>([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchAvailableLinks();
+  }, []);
+
+  async function fetchAvailableLinks() {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/payment-links/import');
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to fetch available links');
+      }
+
+      const data = await response.json();
+      setAvailableLinks(data.availableLinks || []);
+      setTotalCount(data.totalCount || 0);
+      setAlreadyImported(data.alreadyImported || 0);
+
+      // Initialize with empty ty_page_url
+      setLinksWithUrls(
+        (data.availableLinks || []).map((link: AvailableLink) => ({
+          ...link,
+          tyPageUrl: '',
+        }))
+      );
+    } catch (err: any) {
+      console.error('Error fetching available links:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleUrlChange(linkId: string, tyPageUrl: string) {
+    setLinksWithUrls((prev) =>
+      prev.map((link) =>
+        link.id === linkId ? { ...link, tyPageUrl } : link
+      )
+    );
+  }
+
+  function handleProceedToImport() {
+    // Validate that all links have a ty_page_url
+    const missingUrls = linksWithUrls.filter((link) => !link.tyPageUrl.trim());
+    if (missingUrls.length > 0) {
+      alert(`Please add Thank You Page URLs for all ${missingUrls.length} payment link(s)`);
+      return;
+    }
+
+    setShowConfirmModal(true);
+  }
+
+  async function handleConfirmImport() {
+    try {
+      setImporting(true);
+      setShowConfirmModal(false);
+
+      const linksToImport = linksWithUrls.map((link) => ({
+        linkId: link.id,
+        tyPageUrl: link.tyPageUrl,
+      }));
+
+      const response = await fetch('/api/payment-links/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ linksToImport }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to import payment links');
+      }
+
+      const result = await response.json();
+
+      // Show success message
+      alert(
+        `Successfully imported ${result.imported} payment link(s)!${
+          result.failed > 0 ? `\n${result.failed} failed to import.` : ''
+        }`
+      );
+
+      // Redirect back to payment links page
+      router.push('/dashboard/payment-links');
+    } catch (err: any) {
+      console.error('Error importing payment links:', err);
+      alert(`Error: ${err.message}`);
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="rounded-lg shadow p-8 text-center" style={{ background: 'var(--color-bg-card)' }}>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-t-4 mb-4" style={{ borderColor: 'var(--color-bg-hover)', borderTopColor: 'var(--color-accent)' }}></div>
+          <p style={{ color: 'var(--color-text-secondary)' }}>Loading available payment links from Stripe...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '2px solid var(--color-danger)' }}>
+          <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--color-danger)' }}>Error Loading Payment Links</h2>
+          <p style={{ color: 'var(--color-text-secondary)' }}>{error}</p>
+          <button
+            onClick={() => router.push('/dashboard/payment-links')}
+            className="mt-4 px-4 py-2 rounded-lg transition"
+            style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}
+          >
+            ← Back to Payment Links
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (totalCount === 0) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="rounded-lg shadow p-8 text-center" style={{ background: 'var(--color-bg-card)' }}>
+          <div className="text-6xl mb-4">✅</div>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>All Caught Up!</h2>
+          <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+            You have no new payment links to import from Stripe.
+          </p>
+          {alreadyImported > 0 && (
+            <p className="text-sm mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+              ({alreadyImported} link{alreadyImported !== 1 ? 's' : ''} already imported)
+            </p>
+          )}
+          <button
+            onClick={() => router.push('/dashboard/payment-links')}
+            className="px-6 py-2 rounded-lg transition"
+            style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
+          >
+            ← Back to Payment Links
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Import Payment Links</h1>
+          <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+            You have <strong>{totalCount}</strong> payment link{totalCount !== 1 ? 's' : ''} available to import from Stripe
+          </p>
+          {alreadyImported > 0 && (
+            <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+              ({alreadyImported} already imported)
+            </p>
+          )}
+        </div>
+        <button
+          onClick={() => router.push('/dashboard/payment-links')}
+          className="px-4 py-2 rounded-lg transition"
+          style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+        >
+          Cancel
+        </button>
+      </div>
+
+      {/* Instructions */}
+      <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+        <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>📝 Instructions</h2>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+          Add a <strong>Thank You Page URL</strong> for each payment link below. This URL will be used to track conversions when customers complete checkout.
+        </p>
+      </div>
+
+      {/* Payment Links List */}
+      <div className="space-y-4">
+        {linksWithUrls.map((link, index) => (
+          <div key={link.id} className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-2">
+                  <h3 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                    {index + 1}. {link.product_name}
+                  </h3>
+                  {link.active && (
+                    <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(80, 245, 172, 0.2)', color: 'var(--color-accent)' }}>
+                      Active
+                    </span>
+                  )}
+                </div>
+                {link.description && (
+                  <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>{link.description}</p>
+                )}
+                <div className="flex items-center space-x-4 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                  <span className="font-medium" style={{ color: 'var(--color-accent)' }}>
+                    ${(link.amount / 100).toFixed(2)} {link.currency.toUpperCase()}
+                  </span>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                    style={{ color: 'var(--color-accent)' }}
+                  >
+                    View Stripe Link →
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Thank You Page URL Input */}
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                Thank You Page URL <span style={{ color: 'var(--color-danger)' }}>*</span>
+              </label>
+              <input
+                type="url"
+                value={link.tyPageUrl}
+                onChange={(e) => handleUrlChange(link.id, e.target.value)}
+                placeholder="https://example.com/thank-you"
+                required
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:outline-none"
+                style={{
+                  background: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)',
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex justify-end space-x-3">
+        <button
+          onClick={() => router.push('/dashboard/payment-links')}
+          className="px-6 py-3 rounded-lg transition"
+          style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleProceedToImport}
+          disabled={importing}
+          className="px-6 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
+        >
+          {importing ? 'Importing...' : `Import ${totalCount} Payment Link${totalCount !== 1 ? 's' : ''}`}
+        </button>
+      </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{ background: 'rgba(0, 0, 0, 0.7)' }}>
+          <div className="rounded-lg shadow-xl p-8 max-w-md w-full mx-4" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>Confirm Import</h2>
+            <p className="mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+              You are about to import <strong>{totalCount}</strong> payment link{totalCount !== 1 ? 's' : ''} from Stripe.
+              Each link will be updated with the Thank You Page URL you provided.
+            </p>
+            <p className="text-sm mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+              Are you sure you want to continue?
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                disabled={importing}
+                className="flex-1 px-4 py-2 rounded-lg transition"
+                style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmImport}
+                disabled={importing}
+                className="flex-1 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
+              >
+                {importing ? 'Importing...' : 'Yes, Import'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

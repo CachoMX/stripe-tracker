@@ -109,12 +109,20 @@ export default function PaymentLinksPage() {
             Manage your Stripe payment links and track conversions
           </p>
         </div>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="btn btn-primary px-6 py-3"
-        >
-          + Create Payment Link
-        </button>
+        <div className="flex gap-3">
+          <a
+            href="/dashboard/payment-links/import"
+            className="btn btn-secondary px-6 py-3"
+          >
+            📥 Import from Stripe
+          </a>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="btn btn-primary px-6 py-3"
+          >
+            + Create Payment Link
+          </button>
+        </div>
       </div>
 
       {showCreateForm && (

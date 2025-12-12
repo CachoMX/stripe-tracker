@@ -6,7 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 // GET single client details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
@@ -15,7 +15,7 @@ export async function GET(
     // Require admin access
     requireAdmin(user?.id);
 
-    const clientId = params.id;
+    const { id: clientId } = await params;
 
     // Fetch client data
     const { data: client, error: clientError } = await supabaseAdmin
@@ -64,7 +64,7 @@ export async function GET(
 // PATCH update client
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
@@ -73,7 +73,7 @@ export async function PATCH(
     // Require admin access
     requireAdmin(user?.id);
 
-    const clientId = params.id;
+    const { id: clientId } = await params;
     const body = await request.json();
 
     const { email, subscription_plan } = body;
@@ -105,7 +105,7 @@ export async function PATCH(
 // DELETE client
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
@@ -114,7 +114,7 @@ export async function DELETE(
     // Require admin access
     requireAdmin(user?.id);
 
-    const clientId = params.id;
+    const { id: clientId } = await params;
 
     // Delete related data first (transactions, payment_links, etc.)
     await Promise.all([
