@@ -51,16 +51,22 @@ export async function GET(request: NextRequest) {
     );
 
     // Map to simplified format
-    const formattedLinks = availableToImport.map(link => ({
-      id: link.id,
-      url: link.url,
-      active: link.active,
-      amount: link.line_items?.data[0]?.price?.unit_amount || 0,
-      currency: link.line_items?.data[0]?.price?.currency || 'usd',
-      product_name: link.line_items?.data[0]?.price?.product?.name || 'Unknown Product',
-      description: link.line_items?.data[0]?.price?.product?.description || null,
-      metadata: link.metadata || {},
-    }));
+    const formattedLinks = availableToImport.map(link => {
+      const lineItem = link.line_items?.data[0];
+      const price = lineItem?.price;
+      const product = typeof price?.product === 'object' ? price.product : null;
+
+      return {
+        id: link.id,
+        url: link.url,
+        active: link.active,
+        amount: price?.unit_amount || 0,
+        currency: price?.currency || 'usd',
+        product_name: product?.name || 'Unknown Product',
+        description: product?.description || null,
+        metadata: link.metadata || {},
+      };
+    });
 
     return NextResponse.json({
       availableLinks: formattedLinks,
