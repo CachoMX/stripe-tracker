@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
         const productId = typeof price?.product === 'string' ? price.product : price?.product?.id;
         const product = productId ? await stripe.products.retrieve(productId) : null;
 
-        // Insert into database
+        // Insert into database (without ty_page_url for now - column may not exist)
         const { data: insertedLink, error: insertError } = await supabase
           .from('payment_links')
           .insert({
@@ -203,12 +203,15 @@ export async function POST(request: NextRequest) {
             currency: price?.currency || 'usd',
             checkout_url: paymentLink.url,
             active: paymentLink.active,
-            ty_page_url: tyPageUrl,
+            name: product?.name || 'Imported Product',
           })
           .select()
           .single();
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Insert error:', insertError);
+          throw insertError;
+        }
 
         importedLinks.push(insertedLink);
       } catch (error: any) {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Toast from '@/components/Toast';
 
 interface AvailableLink {
   id: string;
@@ -25,6 +26,11 @@ interface Domain {
   ty_page_url: string;
 }
 
+interface ToastMessage {
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
+
 export default function ImportPaymentLinksPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -36,7 +42,7 @@ export default function ImportPaymentLinksPage() {
   const [linksWithUrls, setLinksWithUrls] = useState<ImportLinkWithUrl[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showCopiedToast, setShowCopiedToast] = useState(false);
+  const [toast, setToast] = useState<ToastMessage | null>(null);
 
   useEffect(() => {
     fetchAvailableLinks();
@@ -99,24 +105,24 @@ export default function ImportPaymentLinksPage() {
 
   function handleCopyUrl(url: string) {
     navigator.clipboard.writeText(url);
-    setShowCopiedToast(true);
-    setTimeout(() => {
-      setShowCopiedToast(false);
-    }, 2000);
+    setToast({ message: 'Copied!', type: 'success' });
   }
 
   function handleProceedToImport() {
     const selectedLinks = linksWithUrls.filter((link) => link.selected);
 
     if (selectedLinks.length === 0) {
-      alert('Please select at least one payment link to import');
+      setToast({ message: 'Please select at least one payment link to import', type: 'error' });
       return;
     }
 
     // Validate that all selected links have a ty_page_url
     const missingUrls = selectedLinks.filter((link) => !link.tyPageUrl.trim());
     if (missingUrls.length > 0) {
-      alert(`Please add Thank You Page URLs for all ${missingUrls.length} selected payment link(s)`);
+      setToast({
+        message: `Please add Thank You Page URLs for all ${missingUrls.length} selected link(s)`,
+        type: 'error'
+      });
       return;
     }
 
@@ -148,18 +154,26 @@ export default function ImportPaymentLinksPage() {
 
       const result = await response.json();
 
-      // Show success message
-      alert(
-        `Successfully imported ${result.imported} payment link(s)!${
-          result.failed > 0 ? `\n${result.failed} failed to import.` : ''
-        }`
-      );
+      // Show success/error message
+      if (result.failed > 0) {
+        setToast({
+          message: `Imported ${result.imported} link(s). ${result.failed} failed to import.`,
+          type: result.imported > 0 ? 'info' : 'error'
+        });
+      } else {
+        setToast({
+          message: `Successfully imported ${result.imported} payment link(s)!`,
+          type: 'success'
+        });
+      }
 
-      // Redirect back to payment links page
-      router.push('/dashboard/payment-links');
+      // Redirect back after delay
+      setTimeout(() => {
+        router.push('/dashboard/payment-links');
+      }, 2000);
     } catch (err: any) {
       console.error('Error importing payment links:', err);
-      alert(`Error: ${err.message}`);
+      setToast({ message: `Error: ${err.message}`, type: 'error' });
     } finally {
       setImporting(false);
     }
@@ -222,31 +236,13 @@ export default function ImportPaymentLinksPage() {
 
   return (
     <>
-      {/* Copied Toast Notification - Outside container for proper positioning */}
-      {showCopiedToast && (
-        <div style={{ position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 9999 }} className="animate-fade-in-down">
-          <div
-            className="flex items-center gap-2 px-4 py-3 rounded-lg shadow-2xl"
-            style={{ background: '#212437', border: '2px solid #50f5ac', boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#50f5ac"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span className="font-medium" style={{ color: '#edeff8' }}>
-              Copied!
-            </span>
-          </div>
-        </div>
+      {/* Toast Notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
 
       <div className="max-w-6xl mx-auto p-6 space-y-6">
