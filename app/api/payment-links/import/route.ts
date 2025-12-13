@@ -12,10 +12,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get tenant's Stripe credentials
+    // Get tenant's Stripe credentials and domain info
     const { data: tenant } = await supabase
       .from('tenants')
-      .select('id, stripe_secret_key')
+      .select('id, stripe_secret_key, custom_domain, domain_verified')
       .eq('clerk_user_id', user.id)
       .single();
 
@@ -45,12 +45,15 @@ export async function GET(request: NextRequest) {
 
     const existingLinkIds = new Set(existingLinks?.map(l => l.stripe_payment_link_id) || []);
 
-    // Get user's domains
-    const { data: domains } = await supabase
-      .from('domains')
-      .select('domain, ty_page_url')
-      .eq('tenant_id', tenant.id)
-      .order('created_at', { ascending: false });
+    // Build domains array from tenant's custom domain
+    const domains = [];
+    if (tenant.custom_domain && tenant.domain_verified) {
+      const tyPageUrl = `https://${tenant.custom_domain}/ty`;
+      domains.push({
+        domain: tenant.custom_domain,
+        ty_page_url: tyPageUrl,
+      });
+    }
 
     // Filter out already imported links
     const availableToImport = paymentLinks.data.filter(
