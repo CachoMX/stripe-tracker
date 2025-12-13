@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     const formattedLinks = availableToImport.map(link => {
       const lineItem = link.line_items?.data[0];
       const price = lineItem?.price;
-      const product = typeof price?.product === 'object' ? price.product : null;
+      const product = typeof price?.product === 'object' && !price.product.deleted ? price.product : null;
 
       return {
         id: link.id,
@@ -62,8 +62,8 @@ export async function GET(request: NextRequest) {
         active: link.active,
         amount: price?.unit_amount || 0,
         currency: price?.currency || 'usd',
-        product_name: product?.name || 'Unknown Product',
-        description: product?.description || null,
+        product_name: product && 'name' in product ? product.name : 'Unknown Product',
+        description: product && 'description' in product ? product.description || null : null,
         metadata: link.metadata || {},
       };
     });
