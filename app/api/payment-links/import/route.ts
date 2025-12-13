@@ -172,29 +172,28 @@ export async function POST(request: NextRequest) {
 
     for (const { linkId, tyPageUrl } of linksToImport) {
       try {
-        // Fetch the payment link from Stripe
-        const paymentLink = await stripe.paymentLinks.retrieve(linkId);
-
-        // Update payment link metadata with thank you page URL
-        const updatedLink = await stripe.paymentLinks.update(linkId, {
-          metadata: {
-            ...paymentLink.metadata,
-            ty_page_url: tyPageUrl,
-          },
+        // Fetch the payment link from Stripe WITH line_items expanded
+        const paymentLink = await stripe.paymentLinks.retrieve(linkId, {
+          expand: ['line_items.data.price'],
         });
 
+        // Note: We can't update payment links created outside this app
+        // The ty_page_url will be stored in our database and fetched from Stripe metadata if it exists
+
         // Get price and product info
-        const priceId = paymentLink.line_items?.data[0]?.price?.id;
-        const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+        const lineItem = paymentLink.line_items?.data[0];
+        const price = lineItem?.price;
+        const priceId = typeof price === 'object' && price ? price.id : null;
         const productId = typeof price?.product === 'string' ? price.product : price?.product?.id;
         const product = productId ? await stripe.products.retrieve(productId) : null;
 
-        // Insert into database (without ty_page_url for now - column may not exist)
+        // Insert into database
         const { data: insertedLink, error: insertError } = await supabase
           .from('payment_links')
           .insert({
             tenant_id: tenant.id,
             stripe_payment_link_id: paymentLink.id,
+            stripe_payment_link: paymentLink.url,
             stripe_product_id: productId || null,
             stripe_price_id: priceId || null,
             product_name: product?.name || 'Imported Product',

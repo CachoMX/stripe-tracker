@@ -117,7 +117,7 @@ export default function ImportPaymentLinksPage() {
     }
 
     // Validate that all selected links have a ty_page_url
-    const missingUrls = selectedLinks.filter((link) => !link.tyPageUrl.trim());
+    const missingUrls = selectedLinks.filter((link) => !link.tyPageUrl || !link.tyPageUrl.trim());
     if (missingUrls.length > 0) {
       setToast({
         message: `Please add Thank You Page URLs for all ${missingUrls.length} selected link(s)`,

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Toast from '@/components/Toast';
 
 export default function PaymentLinksPage() {
   const [links, setLinks] = useState([]);
@@ -9,6 +10,8 @@ export default function PaymentLinksPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     product_name: '',
@@ -100,8 +103,44 @@ export default function PaymentLinksPage() {
     }
   };
 
+  const handleSyncOldLinks = async () => {
+    setSyncing(true);
+    setToast({ message: 'Syncing payment links with Stripe...', type: 'info' });
+
+    try {
+      const response = await fetch('/api/payment-links/sync-stripe-ids', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setToast({
+          message: `Successfully synced ${data.updated} payment link(s)${data.errors > 0 ? `. ${data.errors} failed.` : ''}`,
+          type: data.errors > 0 ? 'info' : 'success'
+        });
+        await fetchPaymentLinks();
+      } else {
+        setToast({ message: data.error || 'Failed to sync payment links', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Error syncing payment links:', error);
+      setToast({ message: 'Failed to sync payment links', type: 'error' });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <div>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h1 className="text-h1">Payment Links</h1>
@@ -110,6 +149,14 @@ export default function PaymentLinksPage() {
           </p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={handleSyncOldLinks}
+            disabled={syncing}
+            className="btn btn-secondary px-6 py-3"
+            title="Sync old payment links that are missing Stripe IDs"
+          >
+            {syncing ? '🔄 Syncing...' : '🔄 Sync Old Links'}
+          </button>
           <a
             href="/dashboard/payment-links/import"
             className="btn btn-secondary px-6 py-3"
