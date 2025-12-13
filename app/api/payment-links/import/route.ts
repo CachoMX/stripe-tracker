@@ -63,6 +63,7 @@ export async function GET(request: NextRequest) {
       let productDescription = null;
       let amount = 0;
       let currency = 'usd';
+      let existingRedirectUrl = null;
 
       try {
         // Retrieve full payment link with line_items expanded
@@ -85,6 +86,13 @@ export async function GET(request: NextRequest) {
             productDescription = product.description || null;
           }
         }
+
+        // Get existing redirect URL from either metadata or after_completion
+        if (fullLink.metadata?.ty_page_url) {
+          existingRedirectUrl = fullLink.metadata.ty_page_url;
+        } else if (fullLink.after_completion?.type === 'redirect' && fullLink.after_completion.redirect?.url) {
+          existingRedirectUrl = fullLink.after_completion.redirect.url;
+        }
       } catch (error) {
         console.error(`Error fetching details for link ${link.id}:`, error);
       }
@@ -98,7 +106,7 @@ export async function GET(request: NextRequest) {
         product_name: productName,
         description: productDescription,
         metadata: link.metadata || {},
-        existing_ty_page_url: link.metadata?.ty_page_url || null,
+        existing_ty_page_url: existingRedirectUrl,
       };
     }));
 
