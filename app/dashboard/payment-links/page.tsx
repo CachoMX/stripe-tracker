@@ -375,10 +375,10 @@ export default function PaymentLinksPage() {
                 {/* Amount Column */}
                 <div className="col-span-2">
                   <span className="font-semibold" style={{ color: 'var(--color-accent)' }}>
-                    ${((link.stats?.totalRevenue || 0) / 100).toFixed(2)}
+                    {link.amount != null ? `$${(link.amount / 100).toFixed(2)}` : 'Variable'}
                   </span>
                   <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                    {link.stats?.totalSales || 0} sales
+                    {link.stats?.totalSales || 0} sales · ${((link.stats?.totalRevenue || 0) / 100).toFixed(2)}
                   </p>
                 </div>
 
