@@ -68,9 +68,16 @@ export async function POST(request: NextRequest) {
 
           const lineItem = fullLink.line_items?.data[0];
           const priceId = lineItem?.price?.id;
-          const productId = typeof lineItem?.price?.product === 'string'
-            ? lineItem.price.product
-            : lineItem?.price?.product?.id;
+          const price = lineItem?.price;
+          const productId = typeof price?.product === 'string'
+            ? price.product
+            : price?.product?.id;
+
+          // Get product name with type guard
+          const product = typeof price?.product === 'object' && price.product && !('deleted' in price.product)
+            ? price.product
+            : null;
+          const productName = product?.name || dbLink.name;
 
           // Update database with Stripe ID and additional info
           const { error: updateError } = await supabaseAdmin
@@ -79,9 +86,9 @@ export async function POST(request: NextRequest) {
               stripe_payment_link_id: matchingStripeLink.id,
               stripe_product_id: productId || null,
               stripe_price_id: priceId || null,
-              product_name: lineItem?.price?.product?.name || dbLink.name,
-              amount: lineItem?.price?.unit_amount || 0,
-              currency: lineItem?.price?.currency || 'usd',
+              product_name: productName,
+              amount: price?.unit_amount || 0,
+              currency: price?.currency || 'usd',
               checkout_url: matchingStripeLink.url,
               active: matchingStripeLink.active,
             })
