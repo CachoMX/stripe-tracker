@@ -12,6 +12,7 @@ interface AvailableLink {
   product_name: string;
   description: string | null;
   metadata: Record<string, string>;
+  existing_ty_page_url: string | null;
 }
 
 interface ImportLinkWithUrl extends AvailableLink {
@@ -55,11 +56,11 @@ export default function ImportPaymentLinksPage() {
       setTotalCount(data.totalCount || 0);
       setAlreadyImported(data.alreadyImported || 0);
 
-      // Initialize with empty ty_page_url and selected = true
+      // Initialize with existing ty_page_url if available, otherwise empty
       setLinksWithUrls(
         (data.availableLinks || []).map((link: AvailableLink) => ({
           ...link,
-          tyPageUrl: '',
+          tyPageUrl: link.existing_ty_page_url || '',
           selected: true,
         }))
       );
@@ -355,6 +356,11 @@ export default function ImportPaymentLinksPage() {
               <div className="ml-9">
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                   Thank You Page URL <span style={{ color: 'var(--color-danger)' }}>*</span>
+                  {link.existing_ty_page_url && (
+                    <span className="ml-2 text-xs px-2 py-1 rounded" style={{ background: 'rgba(80, 245, 172, 0.2)', color: 'var(--color-accent)' }}>
+                      ✓ Has existing URL
+                    </span>
+                  )}
                 </label>
                 <input
                   type="url"
@@ -369,6 +375,11 @@ export default function ImportPaymentLinksPage() {
                     color: 'var(--color-text-primary)',
                   }}
                 />
+                {link.existing_ty_page_url && (
+                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                    Current URL in Stripe: <span className="font-mono" style={{ color: 'var(--color-accent)' }}>{link.existing_ty_page_url}</span>
+                  </p>
+                )}
               </div>
             )}
           </div>

@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     // Get tenant's Stripe credentials
     const { data: tenant } = await supabase
       .from('tenants')
-      .select('stripe_secret_key')
+      .select('id, stripe_secret_key')
       .eq('clerk_user_id', user.id)
       .single();
 
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     const { data: existingLinks } = await supabase
       .from('payment_links')
       .select('stripe_payment_link_id')
-      .eq('tenant_id', (tenant as any).id);
+      .eq('tenant_id', tenant.id);
 
     const existingLinkIds = new Set(existingLinks?.map(l => l.stripe_payment_link_id) || []);
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     const { data: domains } = await supabase
       .from('domains')
       .select('domain, ty_page_url')
-      .eq('tenant_id', (tenant as any).id)
+      .eq('tenant_id', tenant.id)
       .order('created_at', { ascending: false });
 
     // Filter out already imported links
@@ -98,6 +98,7 @@ export async function GET(request: NextRequest) {
         product_name: productName,
         description: productDescription,
         metadata: link.metadata || {},
+        existing_ty_page_url: link.metadata?.ty_page_url || null,
       };
     }));
 
