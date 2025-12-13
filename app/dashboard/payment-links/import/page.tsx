@@ -331,115 +331,133 @@ export default function ImportPaymentLinksPage() {
         )}
       </div>
 
-      {/* Select All / Deselect All */}
-      <div className="flex items-center justify-between rounded-lg shadow p-4" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-          <strong>{linksWithUrls.filter(l => l.selected).length}</strong> of <strong>{totalCount}</strong> links selected
-        </p>
-        <div className="flex gap-2">
-          <button
-            onClick={handleSelectAll}
-            className="px-3 py-1 text-sm rounded-lg transition"
-            style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
-          >
-            Select All
-          </button>
-          <button
-            onClick={handleDeselectAll}
-            className="px-3 py-1 text-sm rounded-lg transition"
-            style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
-          >
-            Deselect All
-          </button>
+      {/* Payment Links Table */}
+      <div className="card overflow-hidden">
+        {/* Table Header */}
+        <div className="flex items-center justify-between px-6 py-4" style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
+          <div className="flex items-center gap-4">
+            <input
+              type="checkbox"
+              checked={linksWithUrls.every(l => l.selected)}
+              onChange={(e) => e.target.checked ? handleSelectAll() : handleDeselectAll()}
+              className="w-4 h-4 cursor-pointer"
+              style={{ accentColor: 'var(--color-accent)' }}
+            />
+            <span className="text-sm font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
+              {linksWithUrls.filter(l => l.selected).length} of {totalCount} selected
+            </span>
+          </div>
+          <div className="grid grid-cols-11 gap-4 flex-1 ml-6 font-semibold text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            <div className="col-span-3">Product Name</div>
+            <div className="col-span-2">Amount</div>
+            <div className="col-span-4">Thank You Page URL</div>
+            <div className="col-span-2">Status</div>
+          </div>
         </div>
-      </div>
 
-      {/* Payment Links List */}
-      <div className="space-y-4">
-        {linksWithUrls.map((link, index) => (
-          <div
-            key={link.id}
-            className="rounded-lg shadow p-6 transition"
-            style={{
-              background: 'var(--color-bg-card)',
-              border: link.selected ? '2px solid var(--color-accent)' : '1px solid var(--color-border)',
-              opacity: link.selected ? 1 : 0.6
-            }}
-          >
-            <div className="flex items-start gap-4 mb-4">
+        {/* Table Body */}
+        <div className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
+          {linksWithUrls.map((link, index) => (
+            <div
+              key={link.id}
+              className="flex items-center gap-4 px-6 py-4 transition"
+              style={{
+                background: link.selected ? 'var(--color-bg-card)' : 'var(--color-bg-secondary)',
+                opacity: link.selected ? 1 : 0.5
+              }}
+            >
               {/* Checkbox */}
               <input
                 type="checkbox"
                 checked={link.selected}
                 onChange={() => handleToggleSelect(link.id)}
-                className="mt-1 w-5 h-5 cursor-pointer"
+                className="w-4 h-4 cursor-pointer flex-shrink-0"
                 style={{ accentColor: 'var(--color-accent)' }}
               />
 
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
-                  <h3 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                    {index + 1}. {link.product_name}
-                  </h3>
-                  {link.active && (
-                    <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(80, 245, 172, 0.2)', color: 'var(--color-accent)' }}>
-                      Active
+              {/* Grid Columns */}
+              <div className="grid grid-cols-11 gap-4 flex-1 items-center">
+                {/* Product Name */}
+                <div className="col-span-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                      {link.product_name}
                     </span>
-                  )}
-                </div>
-                {link.description && (
-                  <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>{link.description}</p>
-                )}
-                <div className="flex items-center space-x-4 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                  <span className="font-medium" style={{ color: 'var(--color-accent)' }}>
-                    ${(link.amount / 100).toFixed(2)} {link.currency.toUpperCase()}
-                  </span>
+                  </div>
                   <a
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:underline"
+                    className="text-xs hover:underline block truncate"
                     style={{ color: 'var(--color-accent)' }}
+                    title={link.url}
                   >
                     View Stripe Link →
                   </a>
                 </div>
-              </div>
-            </div>
 
-            {/* Thank You Page URL Input */}
-            {link.selected && (
-              <div className="ml-9">
-                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                  Thank You Page URL <span style={{ color: 'var(--color-danger)' }}>*</span>
-                  {link.existing_ty_page_url && (
-                    <span className="ml-2 text-xs px-2 py-1 rounded" style={{ background: 'rgba(80, 245, 172, 0.2)', color: 'var(--color-accent)' }}>
-                      ✓ Has existing URL
+                {/* Amount */}
+                <div className="col-span-2">
+                  <span className="font-semibold text-sm" style={{ color: 'var(--color-accent)' }}>
+                    ${(link.amount / 100).toFixed(2)}
+                  </span>
+                  <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                    {link.currency.toUpperCase()}
+                  </p>
+                </div>
+
+                {/* Thank You Page URL */}
+                <div className="col-span-4">
+                  {link.selected ? (
+                    <div>
+                      <input
+                        type="url"
+                        value={link.tyPageUrl}
+                        onChange={(e) => handleUrlChange(link.id, e.target.value)}
+                        placeholder="Paste your Thank You Page URL"
+                        className="w-full px-3 py-1.5 rounded text-sm focus:ring-2 focus:outline-none"
+                        style={{
+                          background: 'var(--color-bg-secondary)',
+                          border: '1px solid var(--color-border)',
+                          color: 'var(--color-text-primary)',
+                        }}
+                      />
+                      {link.existing_ty_page_url && (
+                        <p className="text-xs mt-1 truncate" style={{ color: 'var(--color-text-secondary)' }} title={link.existing_ty_page_url}>
+                          Current: {link.existing_ty_page_url}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                      {link.existing_ty_page_url ? (
+                        <span className="truncate block" title={link.existing_ty_page_url}>{link.existing_ty_page_url}</span>
+                      ) : (
+                        '—'
+                      )}
                     </span>
                   )}
-                </label>
-                <input
-                  type="url"
-                  value={link.tyPageUrl}
-                  onChange={(e) => handleUrlChange(link.id, e.target.value)}
-                  placeholder="Paste your Thank You Page URL here"
-                  required
-                  className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:outline-none"
-                  style={{
-                    background: 'var(--color-bg-secondary)',
-                    border: '1px solid var(--color-border)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                />
-                {link.existing_ty_page_url && (
-                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                    Current URL in Stripe: <span className="font-mono" style={{ color: 'var(--color-accent)' }}>{link.existing_ty_page_url}</span>
-                  </p>
-                )}
+                </div>
+
+                {/* Status */}
+                <div className="col-span-2">
+                  <div className="flex flex-wrap gap-1">
+                    {link.active && (
+                      <span className="px-2 py-1 text-xs rounded" style={{ background: 'rgba(80, 245, 172, 0.15)', color: 'var(--color-accent)' }}>
+                        Active
+                      </span>
+                    )}
+                    {link.existing_ty_page_url && (
+                      <span className="px-2 py-1 text-xs rounded" style={{ background: 'rgba(80, 245, 172, 0.15)', color: 'var(--color-accent)' }}>
+                        Has URL
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Action Buttons */}
