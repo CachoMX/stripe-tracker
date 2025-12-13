@@ -16,6 +16,12 @@ interface AvailableLink {
 
 interface ImportLinkWithUrl extends AvailableLink {
   tyPageUrl: string;
+  selected: boolean;
+}
+
+interface Domain {
+  domain: string;
+  ty_page_url: string;
 }
 
 export default function ImportPaymentLinksPage() {
@@ -23,6 +29,7 @@ export default function ImportPaymentLinksPage() {
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [availableLinks, setAvailableLinks] = useState<AvailableLink[]>([]);
+  const [domains, setDomains] = useState<Domain[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [alreadyImported, setAlreadyImported] = useState(0);
   const [linksWithUrls, setLinksWithUrls] = useState<ImportLinkWithUrl[]>([]);
@@ -44,14 +51,16 @@ export default function ImportPaymentLinksPage() {
 
       const data = await response.json();
       setAvailableLinks(data.availableLinks || []);
+      setDomains(data.domains || []);
       setTotalCount(data.totalCount || 0);
       setAlreadyImported(data.alreadyImported || 0);
 
-      // Initialize with empty ty_page_url
+      // Initialize with empty ty_page_url and selected = true
       setLinksWithUrls(
         (data.availableLinks || []).map((link: AvailableLink) => ({
           ...link,
           tyPageUrl: '',
+          selected: true,
         }))
       );
     } catch (err: any) {
@@ -70,11 +79,34 @@ export default function ImportPaymentLinksPage() {
     );
   }
 
+  function handleToggleSelect(linkId: string) {
+    setLinksWithUrls((prev) =>
+      prev.map((link) =>
+        link.id === linkId ? { ...link, selected: !link.selected } : link
+      )
+    );
+  }
+
+  function handleSelectAll() {
+    setLinksWithUrls((prev) => prev.map((link) => ({ ...link, selected: true })));
+  }
+
+  function handleDeselectAll() {
+    setLinksWithUrls((prev) => prev.map((link) => ({ ...link, selected: false })));
+  }
+
   function handleProceedToImport() {
-    // Validate that all links have a ty_page_url
-    const missingUrls = linksWithUrls.filter((link) => !link.tyPageUrl.trim());
+    const selectedLinks = linksWithUrls.filter((link) => link.selected);
+
+    if (selectedLinks.length === 0) {
+      alert('Please select at least one payment link to import');
+      return;
+    }
+
+    // Validate that all selected links have a ty_page_url
+    const missingUrls = selectedLinks.filter((link) => !link.tyPageUrl.trim());
     if (missingUrls.length > 0) {
-      alert(`Please add Thank You Page URLs for all ${missingUrls.length} payment link(s)`);
+      alert(`Please add Thank You Page URLs for all ${missingUrls.length} selected payment link(s)`);
       return;
     }
 
@@ -86,10 +118,12 @@ export default function ImportPaymentLinksPage() {
       setImporting(true);
       setShowConfirmModal(false);
 
-      const linksToImport = linksWithUrls.map((link) => ({
-        linkId: link.id,
-        tyPageUrl: link.tyPageUrl,
-      }));
+      const linksToImport = linksWithUrls
+        .filter((link) => link.selected)
+        .map((link) => ({
+          linkId: link.id,
+          tyPageUrl: link.tyPageUrl,
+        }));
 
       const response = await fetch('/api/payment-links/import', {
         method: 'POST',
@@ -200,19 +234,76 @@ export default function ImportPaymentLinksPage() {
         </button>
       </div>
 
-      {/* Instructions */}
-      <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-        <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>📝 Instructions</h2>
+      {/* Your Domains */}
+      {domains.length > 0 && (
+        <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+          <h2 className="text-lg font-semibold mb-3" style={{ color: 'var(--color-text-primary)' }}>🌐 Your Thank You Page URLs</h2>
+          <p className="text-sm mb-3" style={{ color: 'var(--color-text-secondary)' }}>
+            Click to copy a URL and paste it below:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {domains.map((domain) => (
+              <button
+                key={domain.domain}
+                onClick={() => {
+                  navigator.clipboard.writeText(domain.ty_page_url);
+                  alert(`Copied: ${domain.ty_page_url}`);
+                }}
+                className="px-3 py-2 rounded-lg text-sm font-mono transition hover:opacity-80"
+                style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-accent)', border: '1px solid var(--color-accent)' }}
+              >
+                📋 {domain.ty_page_url}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Select All / Deselect All */}
+      <div className="flex items-center justify-between rounded-lg shadow p-4" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
         <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-          Add a <strong>Thank You Page URL</strong> for each payment link below. This URL will be used to track conversions when customers complete checkout.
+          <strong>{linksWithUrls.filter(l => l.selected).length}</strong> of <strong>{totalCount}</strong> links selected
         </p>
+        <div className="flex gap-2">
+          <button
+            onClick={handleSelectAll}
+            className="px-3 py-1 text-sm rounded-lg transition"
+            style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+          >
+            Select All
+          </button>
+          <button
+            onClick={handleDeselectAll}
+            className="px-3 py-1 text-sm rounded-lg transition"
+            style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+          >
+            Deselect All
+          </button>
+        </div>
       </div>
 
       {/* Payment Links List */}
       <div className="space-y-4">
         {linksWithUrls.map((link, index) => (
-          <div key={link.id} className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-            <div className="flex items-start justify-between mb-4">
+          <div
+            key={link.id}
+            className="rounded-lg shadow p-6 transition"
+            style={{
+              background: 'var(--color-bg-card)',
+              border: link.selected ? '2px solid var(--color-accent)' : '1px solid var(--color-border)',
+              opacity: link.selected ? 1 : 0.6
+            }}
+          >
+            <div className="flex items-start gap-4 mb-4">
+              {/* Checkbox */}
+              <input
+                type="checkbox"
+                checked={link.selected}
+                onChange={() => handleToggleSelect(link.id)}
+                className="mt-1 w-5 h-5 cursor-pointer"
+                style={{ accentColor: 'var(--color-accent)' }}
+              />
+
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
                   <h3 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
@@ -245,24 +336,26 @@ export default function ImportPaymentLinksPage() {
             </div>
 
             {/* Thank You Page URL Input */}
-            <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                Thank You Page URL <span style={{ color: 'var(--color-danger)' }}>*</span>
-              </label>
-              <input
-                type="url"
-                value={link.tyPageUrl}
-                onChange={(e) => handleUrlChange(link.id, e.target.value)}
-                placeholder="https://example.com/thank-you"
-                required
-                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:outline-none"
-                style={{
-                  background: 'var(--color-bg-secondary)',
-                  border: '1px solid var(--color-border)',
-                  color: 'var(--color-text-primary)',
-                }}
-              />
-            </div>
+            {link.selected && (
+              <div className="ml-9">
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                  Thank You Page URL <span style={{ color: 'var(--color-danger)' }}>*</span>
+                </label>
+                <input
+                  type="url"
+                  value={link.tyPageUrl}
+                  onChange={(e) => handleUrlChange(link.id, e.target.value)}
+                  placeholder="Paste your Thank You Page URL here"
+                  required
+                  className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:outline-none"
+                  style={{
+                    background: 'var(--color-bg-secondary)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -278,11 +371,11 @@ export default function ImportPaymentLinksPage() {
         </button>
         <button
           onClick={handleProceedToImport}
-          disabled={importing}
+          disabled={importing || linksWithUrls.filter(l => l.selected).length === 0}
           className="px-6 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
         >
-          {importing ? 'Importing...' : `Import ${totalCount} Payment Link${totalCount !== 1 ? 's' : ''}`}
+          {importing ? 'Importing...' : `Import ${linksWithUrls.filter(l => l.selected).length} Selected Link${linksWithUrls.filter(l => l.selected).length !== 1 ? 's' : ''}`}
         </button>
       </div>
 
@@ -292,7 +385,7 @@ export default function ImportPaymentLinksPage() {
           <div className="rounded-lg shadow-xl p-8 max-w-md w-full mx-4" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
             <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>Confirm Import</h2>
             <p className="mb-6" style={{ color: 'var(--color-text-secondary)' }}>
-              You are about to import <strong>{totalCount}</strong> payment link{totalCount !== 1 ? 's' : ''} from Stripe.
+              You are about to import <strong>{linksWithUrls.filter(l => l.selected).length}</strong> payment link{linksWithUrls.filter(l => l.selected).length !== 1 ? 's' : ''} from Stripe.
               Each link will be updated with the Thank You Page URL you provided.
             </p>
             <p className="text-sm mb-6" style={{ color: 'var(--color-text-secondary)' }}>

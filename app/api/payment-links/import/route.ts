@@ -31,10 +31,11 @@ export async function GET(request: NextRequest) {
       apiVersion: '2025-11-17.clover' as any,
     });
 
-    // Fetch all payment links from Stripe
+    // Fetch all payment links from Stripe with expanded line items
     const paymentLinks = await stripe.paymentLinks.list({
-      limit: 100, // Adjust if needed
+      limit: 100,
       active: true,
+      expand: ['data.line_items.data.price.product'],
     });
 
     // Get existing payment links from database to filter out already imported ones
@@ -44,6 +45,13 @@ export async function GET(request: NextRequest) {
       .eq('tenant_id', (tenant as any).id);
 
     const existingLinkIds = new Set(existingLinks?.map(l => l.stripe_payment_link_id) || []);
+
+    // Get user's domains
+    const { data: domains } = await supabase
+      .from('domains')
+      .select('domain, ty_page_url')
+      .eq('tenant_id', (tenant as any).id)
+      .order('created_at', { ascending: false });
 
     // Filter out already imported links
     const availableToImport = paymentLinks.data.filter(
@@ -72,6 +80,7 @@ export async function GET(request: NextRequest) {
       availableLinks: formattedLinks,
       totalCount: formattedLinks.length,
       alreadyImported: existingLinkIds.size,
+      domains: domains || [],
     });
   } catch (error: any) {
     console.error('Error fetching Stripe payment links:', error);
