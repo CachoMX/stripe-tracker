@@ -55,10 +55,10 @@ export async function GET(request: NextRequest) {
       id: link.id,
       url: link.url,
       active: link.active,
-      amount: link.line_items.data[0]?.price?.unit_amount || 0,
-      currency: link.line_items.data[0]?.price?.currency || 'usd',
-      product_name: link.line_items.data[0]?.price?.product?.name || 'Unknown Product',
-      description: link.line_items.data[0]?.price?.product?.description || null,
+      amount: link.line_items?.data[0]?.price?.unit_amount || 0,
+      currency: link.line_items?.data[0]?.price?.currency || 'usd',
+      product_name: link.line_items?.data[0]?.price?.product?.name || 'Unknown Product',
+      description: link.line_items?.data[0]?.price?.product?.description || null,
       metadata: link.metadata || {},
     }));
 
