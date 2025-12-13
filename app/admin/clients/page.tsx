@@ -29,9 +29,10 @@ export default function AdminClientsPage() {
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'all');
   const [planFilter, setPlanFilter] = useState(searchParams.get('plan') || 'all');
-  const [editingClient, setEditingClient] = useState<string | null>(null);
-  const [editedStatus, setEditedStatus] = useState('');
-  const [editedPlan, setEditedPlan] = useState('');
+  const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set());
+  const [showBulkEditModal, setShowBulkEditModal] = useState(false);
+  const [bulkStatus, setBulkStatus] = useState('');
+  const [bulkPlan, setBulkPlan] = useState('');
 
   useEffect(() => {
     fetchClients();
@@ -76,37 +77,78 @@ export default function AdminClientsPage() {
     }
   }
 
-  function startEdit(client: Client) {
-    setEditingClient(client.id);
-    setEditedStatus(client.subscription_status || 'inactive');
-    setEditedPlan(client.subscription_plan || 'Basic');
+  function toggleClient(clientId: string) {
+    setSelectedClients(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(clientId)) {
+        newSet.delete(clientId);
+      } else {
+        newSet.add(clientId);
+      }
+      return newSet;
+    });
   }
 
-  async function saveEdit(clientId: string) {
-    try {
-      const response = await fetch(`/api/admin/clients/${clientId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subscription_status: editedStatus,
-          subscription_plan: editedPlan,
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to update client');
-
-      setEditingClient(null);
-      fetchClients();
-    } catch (error) {
-      console.error('Error updating client:', error);
-      alert('Failed to update client');
+  function toggleAll() {
+    if (selectedClients.size === clients.length) {
+      setSelectedClients(new Set());
+    } else {
+      setSelectedClients(new Set(clients.map(c => c.id)));
     }
   }
 
-  function cancelEdit() {
-    setEditingClient(null);
-    setEditedStatus('');
-    setEditedPlan('');
+  async function handleBulkEdit() {
+    if (selectedClients.size === 0) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedClients).map(clientId =>
+          fetch(`/api/admin/clients/${clientId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              subscription_status: bulkStatus || undefined,
+              subscription_plan: bulkPlan || undefined,
+            }),
+          })
+        )
+      );
+
+      setShowBulkEditModal(false);
+      setSelectedClients(new Set());
+      setBulkStatus('');
+      setBulkPlan('');
+      fetchClients();
+      alert(`Successfully updated ${selectedClients.size} client(s)`);
+    } catch (error) {
+      console.error('Error updating clients:', error);
+      alert('Failed to update clients');
+    }
+  }
+
+  async function handleBulkDelete() {
+    if (selectedClients.size === 0) return;
+
+    if (!confirm(`Are you sure you want to delete ${selectedClients.size} client(s)? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await Promise.all(
+        Array.from(selectedClients).map(clientId =>
+          fetch(`/api/admin/clients/${clientId}`, {
+            method: 'DELETE',
+          })
+        )
+      );
+
+      setSelectedClients(new Set());
+      fetchClients();
+      alert(`Successfully deleted ${selectedClients.size} client(s)`);
+    } catch (error) {
+      console.error('Error deleting clients:', error);
+      alert('Failed to delete clients');
+    }
   }
 
   return (
@@ -222,6 +264,15 @@ export default function AdminClientsPage() {
             <table className="w-full">
               <thead style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
                 <tr>
+                  <th className="px-6 py-3 text-left" style={{ color: 'var(--color-text-secondary)', width: '40px' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedClients.size === clients.length && clients.length > 0}
+                      onChange={toggleAll}
+                      className="rounded"
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    />
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                     Client
                   </th>
@@ -251,6 +302,15 @@ export default function AdminClientsPage() {
               <tbody className="divide-y" style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
                 {clients.map((client) => (
                   <tr key={client.id} className="admin-table-row">
+                    <td className="px-6 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedClients.has(client.id)}
+                        onChange={() => toggleClient(client.id)}
+                        className="rounded"
+                        style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
@@ -264,37 +324,12 @@ export default function AdminClientsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {editingClient === client.id ? (
-                        <select
-                          value={editedStatus}
-                          onChange={(e) => setEditedStatus(e.target.value)}
-                          className="text-xs px-2 py-1 rounded"
-                          style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
-                        >
-                          <option value="active">Active</option>
-                          <option value="inactive">Inactive</option>
-                          <option value="trialing">Trial</option>
-                          <option value="canceled">Canceled</option>
-                        </select>
-                      ) : (
-                        getStatusBadge(client)
-                      )}
+                      {getStatusBadge(client)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {editingClient === client.id ? (
-                        <input
-                          type="text"
-                          value={editedPlan}
-                          onChange={(e) => setEditedPlan(e.target.value)}
-                          className="text-sm px-2 py-1 rounded w-24"
-                          style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
-                          placeholder="Plan name"
-                        />
-                      ) : (
-                        <span className="text-sm capitalize" style={{ color: 'var(--color-text-primary)' }}>
-                          {client.subscription_plan || 'Basic'}
-                        </span>
-                      )}
+                      <span className="text-sm capitalize" style={{ color: 'var(--color-text-primary)' }}>
+                        {client.subscription_plan || 'Basic'}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
@@ -317,41 +352,13 @@ export default function AdminClientsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {editingClient === client.id ? (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => saveEdit(client.id)}
-                            className="text-xs px-3 py-1 rounded"
-                            style={{ background: 'var(--color-accent)', color: '#fff' }}
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEdit}
-                            className="text-xs px-3 py-1 rounded"
-                            style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => startEdit(client)}
-                            className="text-sm font-medium hover:underline"
-                            style={{ color: 'var(--color-accent)' }}
-                          >
-                            Edit
-                          </button>
-                          <a
-                            href={`/admin/clients/${client.id}`}
-                            className="text-sm font-medium hover:underline"
-                            style={{ color: 'var(--color-accent)' }}
-                          >
-                            View →
-                          </a>
-                        </div>
-                      )}
+                      <a
+                        href={`/admin/clients/${client.id}`}
+                        className="text-sm font-medium hover:underline"
+                        style={{ color: 'var(--color-accent)' }}
+                      >
+                        View →
+                      </a>
                     </td>
                   </tr>
                 ))}
@@ -360,6 +367,123 @@ export default function AdminClientsPage() {
           </div>
         )}
       </div>
+
+      {/* Bulk Actions Bar */}
+      {selectedClients.size > 0 && (
+        <div
+          className="fixed bottom-0 left-0 right-0 p-4 shadow-lg"
+          style={{
+            background: 'var(--color-bg-card)',
+            borderTop: '2px solid var(--color-accent)',
+            zIndex: 50
+          }}
+        >
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                Selected {selectedClients.size} lead{selectedClients.size !== 1 ? 's' : ''}
+              </span>
+              <button
+                onClick={() => setSelectedClients(new Set())}
+                className="text-sm hover:underline"
+                style={{ color: 'var(--color-text-secondary)' }}
+              >
+                Clear selection
+              </button>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowBulkEditModal(true)}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition"
+                style={{ background: 'var(--color-accent)', color: '#fff' }}
+              >
+                Edit
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition"
+                style={{ background: '#ef4444', color: '#fff' }}
+              >
+                Delete leads
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Edit Modal */}
+      {showBulkEditModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+          <div className="rounded-lg shadow-xl p-6 max-w-md w-full mx-4" style={{ background: 'var(--color-bg-card)' }}>
+            <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>
+              Edit {selectedClients.size} Client{selectedClients.size !== 1 ? 's' : ''}
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                  Status
+                </label>
+                <select
+                  value={bulkStatus}
+                  onChange={(e) => setBulkStatus(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg"
+                  style={{
+                    background: 'var(--color-bg-secondary)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)'
+                  }}
+                >
+                  <option value="">Keep current</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="trialing">Trial</option>
+                  <option value="canceled">Canceled</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                  Plan
+                </label>
+                <input
+                  type="text"
+                  value={bulkPlan}
+                  onChange={(e) => setBulkPlan(e.target.value)}
+                  placeholder="Keep current"
+                  className="w-full px-4 py-2 rounded-lg"
+                  style={{
+                    background: 'var(--color-bg-secondary)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowBulkEditModal(false);
+                  setBulkStatus('');
+                  setBulkPlan('');
+                }}
+                className="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition"
+                style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBulkEdit}
+                className="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition"
+                style={{ background: 'var(--color-accent)', color: '#fff' }}
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
