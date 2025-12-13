@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Get price and product info
-        const priceId = paymentLink.line_items.data[0]?.price?.id;
+        const priceId = paymentLink.line_items?.data[0]?.price?.id;
         const price = priceId ? await stripe.prices.retrieve(priceId) : null;
         const productId = typeof price?.product === 'string' ? price.product : price?.product?.id;
         const product = productId ? await stripe.products.retrieve(productId) : null;
