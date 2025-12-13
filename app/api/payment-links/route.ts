@@ -202,7 +202,16 @@ export async function POST(request: NextRequest) {
       .insert({
         tenant_id: tenant.id,
         name,
+        stripe_payment_link_id: stripePaymentLink.id,
         stripe_payment_link: stripePaymentLink.url,
+        stripe_product_id: product.id,
+        stripe_price_id: price.id,
+        product_name: product_name,
+        description: description || null,
+        amount: amountInCents,
+        currency: currency,
+        checkout_url: stripePaymentLink.url,
+        active: stripePaymentLink.active,
       })
       .select()
       .single();
