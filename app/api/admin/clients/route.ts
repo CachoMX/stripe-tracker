@@ -33,9 +33,9 @@ export async function GET(request: NextRequest) {
       if (status === 'active') {
         query = query.eq('subscription_status', 'active');
       } else if (status === 'trial') {
-        query = query.is('subscription_status', null);
+        query = query.not('trial_ends_at', 'is', null).gte('trial_ends_at', new Date().toISOString());
       } else if (status === 'expired') {
-        query = query.in('subscription_status', ['canceled', 'unpaid', 'past_due']);
+        query = query.in('subscription_status', ['canceled', 'unpaid', 'past_due', 'inactive']);
       }
     }
 

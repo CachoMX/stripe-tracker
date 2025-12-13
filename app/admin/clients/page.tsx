@@ -29,6 +29,9 @@ export default function AdminClientsPage() {
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'all');
   const [planFilter, setPlanFilter] = useState(searchParams.get('plan') || 'all');
+  const [editingClient, setEditingClient] = useState<string | null>(null);
+  const [editedStatus, setEditedStatus] = useState('');
+  const [editedPlan, setEditedPlan] = useState('');
 
   useEffect(() => {
     fetchClients();
@@ -66,11 +69,44 @@ export default function AdminClientsPage() {
   function getStatusBadge(client: Client) {
     if (client.subscription_status === 'active') {
       return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(80, 245, 172, 0.2)', color: 'var(--color-accent)' }}>Active</span>;
-    } else if (!client.subscription_status && client.trial_ends_at) {
+    } else if (client.trial_ends_at && new Date(client.trial_ends_at) > new Date()) {
       return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6' }}>Trial</span>;
     } else {
       return <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-secondary)' }}>Inactive</span>;
     }
+  }
+
+  function startEdit(client: Client) {
+    setEditingClient(client.id);
+    setEditedStatus(client.subscription_status || 'inactive');
+    setEditedPlan(client.subscription_plan || 'Basic');
+  }
+
+  async function saveEdit(clientId: string) {
+    try {
+      const response = await fetch(`/api/admin/clients/${clientId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscription_status: editedStatus,
+          subscription_plan: editedPlan,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update client');
+
+      setEditingClient(null);
+      fetchClients();
+    } catch (error) {
+      console.error('Error updating client:', error);
+      alert('Failed to update client');
+    }
+  }
+
+  function cancelEdit() {
+    setEditingClient(null);
+    setEditedStatus('');
+    setEditedPlan('');
   }
 
   return (
@@ -228,12 +264,37 @@ export default function AdminClientsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(client)}
+                      {editingClient === client.id ? (
+                        <select
+                          value={editedStatus}
+                          onChange={(e) => setEditedStatus(e.target.value)}
+                          className="text-xs px-2 py-1 rounded"
+                          style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                        >
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                          <option value="trialing">Trial</option>
+                          <option value="canceled">Canceled</option>
+                        </select>
+                      ) : (
+                        getStatusBadge(client)
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm capitalize" style={{ color: 'var(--color-text-primary)' }}>
-                        {client.subscription_plan || 'Trial'}
-                      </span>
+                      {editingClient === client.id ? (
+                        <input
+                          type="text"
+                          value={editedPlan}
+                          onChange={(e) => setEditedPlan(e.target.value)}
+                          className="text-sm px-2 py-1 rounded w-24"
+                          style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                          placeholder="Plan name"
+                        />
+                      ) : (
+                        <span className="text-sm capitalize" style={{ color: 'var(--color-text-primary)' }}>
+                          {client.subscription_plan || 'Basic'}
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
@@ -256,13 +317,41 @@ export default function AdminClientsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <a
-                        href={`/admin/clients/${client.id}`}
-                        className="text-sm font-medium hover:underline"
-                        style={{ color: 'var(--color-accent)' }}
-                      >
-                        View →
-                      </a>
+                      {editingClient === client.id ? (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => saveEdit(client.id)}
+                            className="text-xs px-3 py-1 rounded"
+                            style={{ background: 'var(--color-accent)', color: '#fff' }}
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            className="text-xs px-3 py-1 rounded"
+                            style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => startEdit(client)}
+                            className="text-sm font-medium hover:underline"
+                            style={{ color: 'var(--color-accent)' }}
+                          >
+                            Edit
+                          </button>
+                          <a
+                            href={`/admin/clients/${client.id}`}
+                            className="text-sm font-medium hover:underline"
+                            style={{ color: 'var(--color-accent)' }}
+                          >
+                            View →
+                          </a>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}

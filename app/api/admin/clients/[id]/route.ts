@@ -76,16 +76,21 @@ export async function PATCH(
     const { id: clientId } = await params;
     const body = await request.json();
 
-    const { email, subscription_plan } = body;
+    const { email, subscription_plan, subscription_status } = body;
+
+    // Build update object
+    const updateData: any = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (email !== undefined) updateData.email = email;
+    if (subscription_plan !== undefined) updateData.subscription_plan = subscription_plan;
+    if (subscription_status !== undefined) updateData.subscription_status = subscription_status;
 
     // Update client
     const { data: updatedClient, error } = await supabaseAdmin
       .from('tenants')
-      .update({
-        email,
-        subscription_plan,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', clientId)
       .select()
       .single();
