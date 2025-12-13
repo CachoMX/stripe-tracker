@@ -31,11 +31,10 @@ export async function GET(request: NextRequest) {
       apiVersion: '2025-11-17.clover' as any,
     });
 
-    // Fetch all payment links from Stripe with expanded line items
+    // Fetch all payment links from Stripe
     const paymentLinks = await stripe.paymentLinks.list({
       limit: 100,
       active: true,
-      expand: ['data.line_items.data.price.product'],
     });
 
     // Get existing payment links from database to filter out already imported ones
@@ -58,23 +57,44 @@ export async function GET(request: NextRequest) {
       link => !existingLinkIds.has(link.id)
     );
 
-    // Map to simplified format
-    const formattedLinks = availableToImport.map(link => {
+    // Fetch product details for each link
+    const formattedLinks = await Promise.all(availableToImport.map(async (link) => {
       const lineItem = link.line_items?.data[0];
-      const price = lineItem?.price;
-      const product = typeof price?.product === 'object' && !price.product.deleted ? price.product : null;
+      const priceId = lineItem?.price?.id;
+
+      let productName = 'Unknown Product';
+      let productDescription = null;
+      let amount = 0;
+      let currency = 'usd';
+
+      if (priceId) {
+        try {
+          const price = await stripe.prices.retrieve(priceId);
+          amount = price.unit_amount || 0;
+          currency = price.currency;
+
+          const productId = typeof price.product === 'string' ? price.product : price.product?.id;
+          if (productId) {
+            const product = await stripe.products.retrieve(productId);
+            productName = product.name;
+            productDescription = product.description || null;
+          }
+        } catch (error) {
+          console.error(`Error fetching price/product for link ${link.id}:`, error);
+        }
+      }
 
       return {
         id: link.id,
         url: link.url,
         active: link.active,
-        amount: price?.unit_amount || 0,
-        currency: price?.currency || 'usd',
-        product_name: product && 'name' in product ? product.name : 'Unknown Product',
-        description: product && 'description' in product ? product.description || null : null,
+        amount,
+        currency,
+        product_name: productName,
+        description: productDescription,
         metadata: link.metadata || {},
       };
-    });
+    }));
 
     return NextResponse.json({
       availableLinks: formattedLinks,
