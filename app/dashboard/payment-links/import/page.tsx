@@ -235,29 +235,44 @@ export default function ImportPaymentLinksPage() {
       </div>
 
       {/* Your Domains */}
-      {domains.length > 0 && (
-        <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-          <h2 className="text-lg font-semibold mb-3" style={{ color: 'var(--color-text-primary)' }}>🌐 Your Thank You Page URLs</h2>
-          <p className="text-sm mb-3" style={{ color: 'var(--color-text-secondary)' }}>
-            Click to copy a URL and paste it below:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {domains.map((domain) => (
-              <button
-                key={domain.domain}
-                onClick={() => {
-                  navigator.clipboard.writeText(domain.ty_page_url);
-                  alert(`Copied: ${domain.ty_page_url}`);
-                }}
-                className="px-3 py-2 rounded-lg text-sm font-mono transition hover:opacity-80"
-                style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-accent)', border: '1px solid var(--color-accent)' }}
-              >
-                📋 {domain.ty_page_url}
-              </button>
-            ))}
+      <div className="rounded-lg shadow p-6" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+        <h2 className="text-lg font-semibold mb-3" style={{ color: 'var(--color-text-primary)' }}>🌐 Your Thank You Page URLs</h2>
+        {domains.length > 0 ? (
+          <>
+            <p className="text-sm mb-3" style={{ color: 'var(--color-text-secondary)' }}>
+              Click to copy a URL and paste it below:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {domains.map((domain) => (
+                <button
+                  key={domain.domain}
+                  onClick={() => {
+                    navigator.clipboard.writeText(domain.ty_page_url);
+                    alert(`Copied: ${domain.ty_page_url}`);
+                  }}
+                  className="px-3 py-2 rounded-lg text-sm font-mono transition hover:opacity-80"
+                  style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-accent)', border: '1px solid var(--color-accent)' }}
+                >
+                  📋 {domain.ty_page_url}
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-4">
+            <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+              No domains configured yet.
+            </p>
+            <a
+              href="/dashboard/domains"
+              className="text-sm hover:underline"
+              style={{ color: 'var(--color-accent)' }}
+            >
+              Add a domain first →
+            </a>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Select All / Deselect All */}
       <div className="flex items-center justify-between rounded-lg shadow p-4" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>

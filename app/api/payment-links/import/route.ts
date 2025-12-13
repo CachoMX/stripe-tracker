@@ -57,31 +57,36 @@ export async function GET(request: NextRequest) {
       link => !existingLinkIds.has(link.id)
     );
 
-    // Fetch product details for each link
+    // Fetch full details for each link including line_items
     const formattedLinks = await Promise.all(availableToImport.map(async (link) => {
-      const lineItem = link.line_items?.data[0];
-      const priceId = lineItem?.price?.id;
-
       let productName = 'Unknown Product';
       let productDescription = null;
       let amount = 0;
       let currency = 'usd';
 
-      if (priceId) {
-        try {
-          const price = await stripe.prices.retrieve(priceId);
+      try {
+        // Retrieve full payment link with line_items expanded
+        const fullLink = await stripe.paymentLinks.retrieve(link.id, {
+          expand: ['line_items.data.price'],
+        });
+
+        const lineItem = fullLink.line_items?.data[0];
+        const price = lineItem?.price;
+
+        if (price) {
           amount = price.unit_amount || 0;
           currency = price.currency;
 
+          // Get product details
           const productId = typeof price.product === 'string' ? price.product : price.product?.id;
           if (productId) {
             const product = await stripe.products.retrieve(productId);
             productName = product.name;
             productDescription = product.description || null;
           }
-        } catch (error) {
-          console.error(`Error fetching price/product for link ${link.id}:`, error);
         }
+      } catch (error) {
+        console.error(`Error fetching details for link ${link.id}:`, error);
       }
 
       return {
