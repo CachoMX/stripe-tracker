@@ -295,11 +295,12 @@ export default function PaymentLinksPage() {
         <div className="card overflow-hidden">
           {/* Table Header */}
           <div className="grid grid-cols-12 gap-4 px-6 py-4 font-semibold text-sm" style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
-            <div className="col-span-3">Link Name</div>
+            <div className="col-span-2">Date</div>
+            <div className="col-span-2">Link Name</div>
             <div className="col-span-2">Amount</div>
             <div className="col-span-3">Thank You Page</div>
             <div className="col-span-2">Stats</div>
-            <div className="col-span-2 text-right">Actions</div>
+            <div className="col-span-1 text-right">Actions</div>
           </div>
 
           {/* Table Body */}
@@ -310,8 +311,23 @@ export default function PaymentLinksPage() {
                 className="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-opacity-50 transition items-center"
                 style={{ background: 'var(--color-bg-card)' }}
               >
+                {/* Date Column */}
+                <div className="col-span-2">
+                  <span className="text-sm font-mono" style={{ color: 'var(--color-text-primary)' }}>
+                    {new Date(link.created_at).toLocaleString('en-CA', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                      hour12: false
+                    }).replace(',', '')}
+                  </span>
+                </div>
+
                 {/* Link Name Column */}
-                <div className="col-span-3">
+                <div className="col-span-2">
                   {editing === link.id ? (
                     <div className="flex items-center gap-2">
                       <input
@@ -408,14 +424,11 @@ export default function PaymentLinksPage() {
                     <span className="px-2 py-1 text-xs rounded" style={{ background: 'rgba(80, 245, 172, 0.15)', color: 'var(--color-accent)' }}>
                       Active
                     </span>
-                    <span className="px-2 py-1 text-xs rounded" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-text-secondary)' }}>
-                      {new Date(link.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
                   </div>
                 </div>
 
                 {/* Actions Column */}
-                <div className="col-span-2 flex justify-end gap-2">
+                <div className="col-span-1 flex justify-end gap-2">
                   <button
                     onClick={() => handleDelete(link.id)}
                     disabled={deleting === link.id}
