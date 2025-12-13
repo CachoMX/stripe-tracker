@@ -13,10 +13,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get tenant ID
+    // Get tenant with Stripe credentials
     const { data: tenant } = await supabaseAdmin
       .from('tenants')
-      .select('id')
+      .select('id, stripe_secret_key')
       .eq('clerk_user_id', user.id)
       .single();
 
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       .from('payment_links')
       .select('*')
       .eq('tenant_id', tenant.id)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false});
 
     if (linksError) throw linksError;
 
@@ -55,8 +55,46 @@ export async function GET(request: NextRequest) {
       stats.totalSales += 1;
     });
 
+    // Fetch ty_page_url from Stripe for links that have stripe_payment_link_id
+    let linksWithTyPageUrl = paymentLinks || [];
+
+    if (tenant.stripe_secret_key && paymentLinks && paymentLinks.length > 0) {
+      try {
+        const stripe = new Stripe(tenant.stripe_secret_key, {
+          apiVersion: '2025-11-17.clover' as any,
+        });
+
+        // Fetch ty_page_url from Stripe metadata for each link
+        linksWithTyPageUrl = await Promise.all((paymentLinks || []).map(async (link) => {
+          if (link.stripe_payment_link_id) {
+            try {
+              const stripeLink = await stripe.paymentLinks.retrieve(link.stripe_payment_link_id);
+
+              // Get ty_page_url from metadata or after_completion
+              let tyPageUrl = link.ty_page_url; // Use DB value if exists
+
+              if (!tyPageUrl && stripeLink.metadata?.ty_page_url) {
+                tyPageUrl = stripeLink.metadata.ty_page_url;
+              } else if (!tyPageUrl && stripeLink.after_completion?.type === 'redirect') {
+                tyPageUrl = stripeLink.after_completion.redirect?.url || null;
+              }
+
+              return { ...link, ty_page_url: tyPageUrl };
+            } catch (err) {
+              console.error(`Error fetching Stripe link ${link.stripe_payment_link_id}:`, err);
+              return link;
+            }
+          }
+          return link;
+        }));
+      } catch (err) {
+        console.error('Error initializing Stripe:', err);
+        linksWithTyPageUrl = paymentLinks || [];
+      }
+    }
+
     // Combine payment links with their stats
-    const linksWithStats = (paymentLinks || []).map((link) => ({
+    const linksWithStats = linksWithTyPageUrl.map((link) => ({
       ...link,
       stats: statsMap.get(link.id) || { totalRevenue: 0, totalSales: 0 },
     }));
