@@ -36,6 +36,7 @@ export default function ImportPaymentLinksPage() {
   const [linksWithUrls, setLinksWithUrls] = useState<ImportLinkWithUrl[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCopiedToast, setShowCopiedToast] = useState(false);
 
   useEffect(() => {
     fetchAvailableLinks();
@@ -94,6 +95,14 @@ export default function ImportPaymentLinksPage() {
 
   function handleDeselectAll() {
     setLinksWithUrls((prev) => prev.map((link) => ({ ...link, selected: false })));
+  }
+
+  function handleCopyUrl(url: string) {
+    navigator.clipboard.writeText(url);
+    setShowCopiedToast(true);
+    setTimeout(() => {
+      setShowCopiedToast(false);
+    }, 2000);
   }
 
   function handleProceedToImport() {
@@ -213,6 +222,33 @@ export default function ImportPaymentLinksPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
+      {/* Copied Toast Notification */}
+      {showCopiedToast && (
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-down">
+          <div
+            className="flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg"
+            style={{ background: 'var(--color-bg-card)', border: '2px solid var(--color-accent)' }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--color-accent)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+              Copied!
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -255,9 +291,7 @@ export default function ImportPaymentLinksPage() {
                   </p>
                 </div>
                 <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(domain.ty_page_url);
-                  }}
+                  onClick={() => handleCopyUrl(domain.ty_page_url)}
                   className="ml-3 p-2 rounded-lg transition opacity-0 group-hover:opacity-100"
                   style={{ background: 'var(--color-accent)', color: 'var(--color-btn-primary-text)' }}
                   title="Copy URL"
