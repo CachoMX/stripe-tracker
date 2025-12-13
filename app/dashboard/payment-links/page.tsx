@@ -230,115 +230,149 @@ export default function PaymentLinksPage() {
         </div>
       )}
 
-      <div className="card">
-        {links.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔗</div>
-            <h3 className="text-h3 mb-2">No payment links yet</h3>
-            <p className="text-secondary mb-6">
-              Create your first payment link to start tracking conversions
-            </p>
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="btn btn-primary px-6 py-3"
-            >
-              Create Payment Link
-            </button>
+      {links.length === 0 ? (
+        <div className="card text-center py-12">
+          <div className="text-6xl mb-4">🔗</div>
+          <h3 className="text-h3 mb-2">No payment links yet</h3>
+          <p className="text-secondary mb-6">
+            Create your first payment link to start tracking conversions
+          </p>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="btn btn-primary px-6 py-3"
+          >
+            Create Payment Link
+          </button>
+        </div>
+      ) : (
+        <div className="card overflow-hidden">
+          {/* Table Header */}
+          <div className="grid grid-cols-12 gap-4 px-6 py-4 font-semibold text-sm" style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
+            <div className="col-span-3">Link Name</div>
+            <div className="col-span-2">Amount</div>
+            <div className="col-span-3">Thank You Page</div>
+            <div className="col-span-2">Stats</div>
+            <div className="col-span-2 text-right">Actions</div>
           </div>
-        ) : (
-          <div className="space-y-4">
+
+          {/* Table Body */}
+          <div className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
             {links.map((link: any) => (
-              <div key={link.id} className="card p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    {editing === link.id ? (
-                      <div className="flex items-center gap-2 mb-2">
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          className="form-input flex-1"
-                          placeholder="Enter new name"
-                          autoFocus
-                        />
-                        <button
-                          onClick={() => handleRename(link.id)}
-                          className="btn btn-primary px-3 py-1 text-sm"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => {
-                            setEditing(null);
-                            setEditName('');
-                          }}
-                          className="btn btn-secondary px-3 py-1 text-sm"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
+              <div
+                key={link.id}
+                className="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-opacity-50 transition items-center"
+                style={{ background: 'var(--color-bg-card)' }}
+              >
+                {/* Link Name Column */}
+                <div className="col-span-3">
+                  {editing === link.id ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="form-input py-1 px-2 text-sm"
+                        placeholder="Enter new name"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => handleRename(link.id)}
+                        className="text-xs px-2 py-1"
+                        style={{ background: 'var(--color-accent)', color: '#fff', borderRadius: '4px' }}
+                      >
+                        ✓
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditing(null);
+                          setEditName('');
+                        }}
+                        className="text-xs px-2 py-1"
+                        style={{ background: 'var(--color-bg-hover)', color: 'var(--color-text-primary)', borderRadius: '4px' }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>{link.name}</h3>
+                        <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                          {link.name}
+                        </span>
                         <button
                           onClick={() => {
                             setEditing(link.id);
                             setEditName(link.name);
                           }}
-                          className="text-xs px-2 py-1 btn btn-secondary"
-                          style={{ fontSize: '11px' }}
+                          className="text-xs opacity-0 group-hover:opacity-100 transition"
+                          style={{ color: 'var(--color-text-secondary)' }}
+                          title="Rename"
                         >
-                          ✏️ Rename
+                          ✏️
                         </button>
                       </div>
-                    )}
-                    <a
-                      href={link.stripe_payment_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm hover:underline break-all"
-                      style={{ color: 'var(--color-accent)' }}
-                    >
-                      {link.stripe_payment_link}
-                    </a>
-                    <p className="text-xs text-muted mt-2">
-                      Created: {new Date(link.created_at).toLocaleDateString()}
-                    </p>
+                      <a
+                        href={link.stripe_payment_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs hover:underline block truncate"
+                        style={{ color: 'var(--color-accent)' }}
+                        title={link.stripe_payment_link}
+                      >
+                        View Stripe Link →
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                {/* Amount Column */}
+                <div className="col-span-2">
+                  <span className="font-semibold" style={{ color: 'var(--color-accent)' }}>
+                    ${((link.stats?.totalRevenue || 0) / 100).toFixed(2)}
+                  </span>
+                  <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                    {link.stats?.totalSales || 0} sales
+                  </p>
+                </div>
+
+                {/* Thank You Page Column */}
+                <div className="col-span-3">
+                  <span className="text-sm font-mono" style={{ color: 'var(--color-text-secondary)' }}>
+                    Not configured
+                  </span>
+                </div>
+
+                {/* Stats Column */}
+                <div className="col-span-2">
+                  <div className="flex flex-wrap gap-1">
+                    <span className="px-2 py-1 text-xs rounded" style={{ background: 'rgba(80, 245, 172, 0.15)', color: 'var(--color-accent)' }}>
+                      Active
+                    </span>
+                    <span className="px-2 py-1 text-xs rounded" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-text-secondary)' }}>
+                      {new Date(link.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
                   </div>
+                </div>
+
+                {/* Actions Column */}
+                <div className="col-span-2 flex justify-end gap-2">
                   <button
                     onClick={() => handleDelete(link.id)}
                     disabled={deleting === link.id}
-                    className="ml-4 px-3 py-1 text-sm btn btn-secondary hover:opacity-80"
+                    className="px-3 py-1 text-xs rounded transition hover:opacity-80"
                     style={{
-                      backgroundColor: 'var(--color-danger)',
+                      background: 'var(--color-danger)',
                       color: '#fff',
-                      border: 'none'
                     }}
                   >
-                    {deleting === link.id ? 'Deleting...' : '🗑️ Delete'}
+                    {deleting === link.id ? '...' : 'Delete'}
                   </button>
-                </div>
-
-                {/* Analytics Stats */}
-                <div className="grid grid-cols-2 gap-4 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
-                  <div className="text-center p-3 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
-                    <p className="text-xs text-muted mb-1">Total Revenue</p>
-                    <p className="text-xl font-bold" style={{ color: 'var(--color-accent)' }}>
-                      ${((link.stats?.totalRevenue || 0) / 100).toFixed(2)}
-                    </p>
-                  </div>
-                  <div className="text-center p-3 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
-                    <p className="text-xs text-muted mb-1">Total Sales</p>
-                    <p className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-                      {link.stats?.totalSales || 0}
-                    </p>
-                  </div>
                 </div>
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
