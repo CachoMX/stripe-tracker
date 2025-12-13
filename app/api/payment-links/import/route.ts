@@ -203,6 +203,7 @@ export async function POST(request: NextRequest) {
             currency: price?.currency || 'usd',
             checkout_url: paymentLink.url,
             active: paymentLink.active,
+            ty_page_url: tyPageUrl,
           })
           .select()
           .single();

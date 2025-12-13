@@ -337,9 +337,22 @@ export default function PaymentLinksPage() {
 
                 {/* Thank You Page Column */}
                 <div className="col-span-3">
-                  <span className="text-sm font-mono" style={{ color: 'var(--color-text-secondary)' }}>
-                    Not configured
-                  </span>
+                  {link.ty_page_url ? (
+                    <a
+                      href={link.ty_page_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-mono hover:underline block truncate"
+                      style={{ color: 'var(--color-accent)' }}
+                      title={link.ty_page_url}
+                    >
+                      {link.ty_page_url}
+                    </a>
+                  ) : (
+                    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                      Not configured
+                    </span>
+                  )}
                 </div>
 
                 {/* Stats Column */}
